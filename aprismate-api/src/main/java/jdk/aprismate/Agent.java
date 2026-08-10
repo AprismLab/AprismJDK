@@ -59,14 +59,25 @@ public final class Agent {
     }
     
     /**
-     * Placeholder for future MethodHookRegistry+ API.
+     * Returns the MethodHookRegistry+ instance for registering method hooks.
      * 
-     * @return null (not implemented until v26.1-Alpha.4)
-     * @since v26.0-Alpha.1 (stub)
+     * <p>The MethodHookRegistry allows registering entry and exit hooks on methods
+     * that survive JIT compilation. This is an AprismJDK-specific capability.
+     * 
+     * @return the MethodHookRegistry instance, or null if not available
+     * @since v26.1-Alpha.4
      */
     public static Object getMethodHookRegistry() {
-        // Stub: returns null until v26.1-Alpha.4
-        return null;
+        if (!isAgentLoaded()) {
+            return null;
+        }
+        try {
+            Class<?> agentClass = Class.forName("com.aprismate.agent.AprismateAgent");
+            return agentClass.getMethod("getMethodHookRegistry").invoke(null);
+        } catch (Exception e) {
+            // MethodHookRegistry not available
+            return null;
+        }
     }
     
     /**

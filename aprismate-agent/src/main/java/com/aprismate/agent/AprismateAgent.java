@@ -1,7 +1,9 @@
 package com.aprismate.agent;
 
 import aprism.agent.api.metrics.AgentMetrics;
+import aprism.agent.hooks.DefaultMethodHookRegistry;
 import aprism.agent.metrics.DefaultMetricRegistry;
+import jdk.aprismate.agent.MethodHookRegistry;
 
 import java.lang.instrument.Instrumentation;
 
@@ -22,6 +24,7 @@ public class AprismateAgent {
     
     private static Instrumentation instrumentation;
     private static volatile boolean initialized = false;
+    private static MethodHookRegistry methodHookRegistry;
     
     /**
      * Premain entry point - invoked before the application's main method.
@@ -41,7 +44,10 @@ public class AprismateAgent {
         // Initialize metrics system
         initializeMetrics();
         
-        System.out.println("[AprismateAgent] v26.1-Alpha.3 attached via premain");
+        // Initialize method hook registry
+        initializeMethodHookRegistry();
+        
+        System.out.println("[AprismateAgent] v26.1-Alpha.4 attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
         
@@ -69,7 +75,10 @@ public class AprismateAgent {
         // Initialize metrics system
         initializeMetrics();
         
-        System.out.println("[AprismateAgent] v26.1-Alpha.3 attached via agentmain (hot-attach)");
+        // Initialize method hook registry
+        initializeMethodHookRegistry();
+        
+        System.out.println("[AprismateAgent] v26.1-Alpha.4 attached via agentmain (hot-attach)");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
         
@@ -85,6 +94,16 @@ public class AprismateAgent {
      */
     public static Instrumentation getInstrumentation() {
         return instrumentation;
+    }
+    
+    /**
+     * Returns the MethodHookRegistry instance for registering method hooks.
+     * 
+     * @return the MethodHookRegistry instance, or null if not initialized
+     * @since v26.1-Alpha.4
+     */
+    public static MethodHookRegistry getMethodHookRegistry() {
+        return methodHookRegistry;
     }
     
     /**
@@ -111,9 +130,24 @@ public class AprismateAgent {
             
             // Record agent initialization metric
             AgentMetrics.counter("aprism.agent.initialized", 1.0, 
-                "version", "v26.1-Alpha.3");
+                "version", "v26.1-Alpha.4");
         } catch (Exception e) {
             System.err.println("[AprismateAgent] Failed to initialize metrics: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Initializes the method hook registry.
+     */
+    private static void initializeMethodHookRegistry() {
+        try {
+            methodHookRegistry = new DefaultMethodHookRegistry();
+            System.out.println("[AprismateAgent] MethodHookRegistry initialized");
+            
+            // Record initialization metric
+            AgentMetrics.counter("aprism.agent.hooks.initialized", 1.0);
+        } catch (Exception e) {
+            System.err.println("[AprismateAgent] Failed to initialize MethodHookRegistry: " + e.getMessage());
         }
     }
 }
