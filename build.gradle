@@ -1,0 +1,76 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+allprojects {
+    group = 'com.aprismjdk'
+    version = project.property('aprismjdkVersion')
+    
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+        withSourcesJar()
+        withJavadocJar()
+    }
+    
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+    }
+    
+    tasks.withType(Test) {
+        useJUnitPlatform()
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+            exceptionFormat 'full'
+            showStandardStreams = false
+        }
+    }
+}
+
+// Root project tasks
+tasks.register('buildAll') {
+    dependsOn subprojects.collect { it.tasks.named('build') }
+    group = 'build'
+    description = 'Assembles and tests all AprismJDK modules'
+}
+
+tasks.register('testAll') {
+    dependsOn subprojects.collect { it.tasks.withType(Test) }
+    group = 'verification'
+    description = 'Runs all test suites'
+}
+
+// Package task for creating distribution artifacts
+task packageJDK {
+    group = 'distribution'
+    description = 'Package full JDK distribution (requires OpenJDK build)'
+    doLast {
+        println 'JDK packaging will be implemented in v26.0-Alpha.2'
+    }
+}
+
+task packageJRE {
+    group = 'distribution'
+    description = 'Package JRE distribution (requires OpenJDK build)'
+    doLast {
+        println 'JRE packaging will be implemented in v26.0-Alpha.3'
+    }
+}
+
+task packageAgent(type: Jar) {
+    dependsOn ':aprismate-agent:shadowJar'
+    group = 'distribution'
+    description = 'Package standalone AprismateAgent jar'
+}

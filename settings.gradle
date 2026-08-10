@@ -1,0 +1,9 @@
+rootProject.name = 'AprismJDK'
+
+include 'aprismate-agent'
+include 'aprismate-api'
+include 'aprismate-tests'
+
+// Future modules (deferred to later alphas)
+// include 'aprismate-perf'
+// include 'aprismate-ffi'

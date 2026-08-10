@@ -1,0 +1,43 @@
+plugins {
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+dependencies {
+    implementation project(':aprismate-api')
+    implementation "org.ow2.asm:asm:${asmVersion}"
+    implementation "org.ow2.asm:asm-commons:${asmVersion}"
+    implementation "org.ow2.asm:asm-tree:${asmVersion}"
+    implementation "org.ow2.asm:asm-util:${asmVersion}"
+}
+
+jar {
+    manifest {
+        attributes(
+            'Premain-Class': 'com.aprismate.agent.AprismateAgent',
+            'Agent-Class': 'com.aprismate.agent.AprismateAgent',
+            'Can-Redefine-Classes': 'true',
+            'Can-Retransform-Classes': 'true',
+            'Can-Set-Native-Method-Prefix': 'true',
+            'Implementation-Title': 'AprismateAgent',
+            'Implementation-Version': project.version,
+            'Implementation-Vendor': 'AprismLab'
+        )
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+    archiveBaseName.set('aprismate-agent')
+    // Temporarily disable ASM relocation due to Java 21 compatibility issues
+    // This will be re-enabled once we upgrade to a compatible Shadow version
+    // relocate 'org.objectweb.asm', 'com.aprismate.agent.shadow.asm'
+    
+    manifest {
+        inheritFrom jar.manifest
+    }
+}
+
+// For v26.0-Alpha.1, we'll use regular jar instead of shadowJar
+// shadowJar will be re-enabled in v26.0-Alpha.2
+// build.dependsOn shadowJar
