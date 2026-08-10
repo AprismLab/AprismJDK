@@ -1,5 +1,8 @@
 package com.aprismate.agent;
 
+import aprism.agent.api.metrics.AgentMetrics;
+import aprism.agent.metrics.DefaultMetricRegistry;
+
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -35,7 +38,10 @@ public class AprismateAgent {
         instrumentation = inst;
         initialized = true;
         
-        System.out.println("[AprismateAgent] v26.0-Alpha.1 attached via premain");
+        // Initialize metrics system
+        initializeMetrics();
+        
+        System.out.println("[AprismateAgent] v26.1-Alpha.3 attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
         
@@ -60,7 +66,10 @@ public class AprismateAgent {
         instrumentation = inst;
         initialized = true;
         
-        System.out.println("[AprismateAgent] v26.0-Alpha.1 attached via agentmain (hot-attach)");
+        // Initialize metrics system
+        initializeMetrics();
+        
+        System.out.println("[AprismateAgent] v26.1-Alpha.3 attached via agentmain (hot-attach)");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
         
@@ -90,5 +99,21 @@ public class AprismateAgent {
     private static void parseArguments(String agentArgs) {
         System.out.println("[AprismateAgent] Arguments: " + agentArgs);
         // Argument parsing will be implemented in later alphas
+    }
+    
+    /**
+     * Initializes the metrics system with a default registry.
+     */
+    private static void initializeMetrics() {
+        try {
+            AgentMetrics.setRegistry(new DefaultMetricRegistry());
+            System.out.println("[AprismateAgent] Metrics system initialized");
+            
+            // Record agent initialization metric
+            AgentMetrics.counter("aprism.agent.initialized", 1.0, 
+                "version", "v26.1-Alpha.3");
+        } catch (Exception e) {
+            System.err.println("[AprismateAgent] Failed to initialize metrics: " + e.getMessage());
+        }
     }
 }

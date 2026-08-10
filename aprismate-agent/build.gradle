@@ -9,6 +9,9 @@ dependencies {
     implementation "org.ow2.asm:asm-commons:${asmVersion}"
     implementation "org.ow2.asm:asm-tree:${asmVersion}"
     implementation "org.ow2.asm:asm-util:${asmVersion}"
+    
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
+    testImplementation "org.assertj:assertj-core:${assertjVersion}"
 }
 
 jar {
