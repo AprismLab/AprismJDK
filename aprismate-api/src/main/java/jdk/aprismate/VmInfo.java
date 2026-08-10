@@ -1,5 +1,7 @@
 package jdk.aprismate;
 
+import jdk.aprismate.runtime.Capability;
+
 /**
  * VmInfo - VM build identity and AprismJDK capability descriptor.
  * 
@@ -8,27 +10,84 @@ package jdk.aprismate;
  * query capabilities rather than assume them, enabling graceful degradation
  * on stock OpenJDK.
  * 
- * <p>This is the v26.0-Alpha.1 stub implementation. Full capability reporting
- * will be delivered in v26.0-Alpha.6.
+ * <p>Enhanced in v26.1-Alpha.1 with Capability API support.
  * 
  * @author BlockConnect@StarsailsClover
  * @since v26.0-Alpha.1
  */
 public final class VmInfo {
     
+    private static final Capability CAPABILITIES = buildCapabilities();
+    
     private VmInfo() {
         // Utility class - no instantiation
+    }
+    
+    private static Capability buildCapabilities() {
+        String version = getAprismJdkVersion();
+        if (version == null) {
+            version = "stock-openjdk";
+        }
+        
+        return Capability.builder(version)
+            // v26.1-Alpha.1 capabilities
+            .enable(Capability.AGENT_LOGGING)
+            .enable(Capability.AGENT_INSTRUMENTATION)
+            .enable(Capability.AGENT_FAILSAFE)
+            // v26.0 capabilities
+            .enable(Capability.RESOURCE_MANAGER)
+            .enable(Capability.RESOURCE_LEAK_DETECTION)
+            // Future capabilities (disabled until implemented)
+            .disable(Capability.TRANSFORM_RETRANSFORM)
+            .disable(Capability.TRANSFORM_REDEFINE)
+            .disable(Capability.TRANSFORM_STRUCTURAL)
+            .disable(Capability.HOOK_METHOD_ENTRY)
+            .disable(Capability.HOOK_METHOD_EXIT)
+            .disable(Capability.HOOK_JIT_SURVIVAL)
+            .disable(Capability.INTROSPECT_THREADS)
+            .disable(Capability.INTROSPECT_HEAP)
+            .disable(Capability.INTROSPECT_JIT)
+            .build();
     }
     
     /**
      * Returns the AprismJDK version string.
      * 
-     * @return the version string (e.g., "v26.0-Alpha.1"), or null if running
+     * @return the version string (e.g., "v26.1-Alpha.1"), or null if running
      *         on stock OpenJDK
      */
     public static String getAprismJdkVersion() {
         // Check system property set by AprismJDK build
         return System.getProperty("aprismjdk.version");
+    }
+    
+    /**
+     * Returns the capability descriptor for this runtime.
+     * 
+     * <p>Use this to query which AprismJDK features are available:
+     * <pre>{@code
+     * Capability cap = VmInfo.getCapabilities();
+     * if (cap.isEnabled(Capability.AGENT_LOGGING)) {
+     *     // Use agent logging
+     * }
+     * }</pre>
+     * 
+     * @return the capability descriptor
+     * @since 26.1-Alpha.1
+     */
+    public static Capability getCapabilities() {
+        return CAPABILITIES;
+    }
+    
+    /**
+     * Checks if a specific capability is enabled.
+     * 
+     * @param capability the capability name
+     * @return true if the capability is enabled
+     * @since 26.1-Alpha.1
+     */
+    public static boolean isCapabilityEnabled(String capability) {
+        return CAPABILITIES.isEnabled(capability);
     }
     
     /**
