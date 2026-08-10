@@ -39,3 +39,6 @@ target/
 
 # OpenJDK source and build artifacts (external dependency, not tracked)
 openjdk-*/
+
+# Session logs and development notes (not for version control)
+FACT.md
