@@ -6,6 +6,15 @@ java {
     modularity.inferModulePath = true
 }
 
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
 compileJava {
     options.compilerArgs << '--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED'
     options.compilerArgs << '--add-exports=java.base/sun.nio.ch=ALL-UNNAMED'

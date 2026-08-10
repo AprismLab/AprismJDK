@@ -37,5 +37,5 @@ bin/
 out/
 target/
 
-# OpenJDK build artifacts (kept locally but not tracked)
-openjdk-*/build/
+# OpenJDK source and build artifacts (external dependency, not tracked)
+openjdk-*/

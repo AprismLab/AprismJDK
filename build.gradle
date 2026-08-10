@@ -52,20 +52,98 @@ tasks.register('testAll') {
     description = 'Runs all test suites'
 }
 
+// OpenJDK build tasks
+task buildOpenJDK(type: Exec) {
+    group = 'build'
+    description = 'Build OpenJDK with Aprism customizations'
+    
+    def isWindows = System.getProperty('os.name').toLowerCase().contains('windows')
+    
+    if (isWindows) {
+        commandLine 'powershell', '-ExecutionPolicy', 'Bypass', '-File', 
+                    "${projectDir}/scripts/build-openjdk.ps1"
+    } else {
+        commandLine 'bash', "${projectDir}/scripts/build-openjdk.sh"
+    }
+    
+    // Set working directory
+    workingDir projectDir
+    
+    doFirst {
+        println "Starting OpenJDK build for AprismJDK..."
+    }
+    
+    doLast {
+        println "OpenJDK build completed successfully"
+    }
+}
+
+task verifyOpenJDK {
+    group = 'verification'
+    description = 'Verify OpenJDK build output'
+    dependsOn buildOpenJDK
+    
+    doLast {
+        def buildDir = file("${projectDir}/openjdk-25/build")
+        if (!buildDir.exists()) {
+            throw new GradleException("OpenJDK build directory not found")
+        }
+        
+        // Find the build output directory
+        def imagesDirs = buildDir.listFiles({ dir, name -> 
+            name.contains('server') && new File(dir, name + '/images').exists()
+        } as FilenameFilter)
+        
+        if (imagesDirs == null || imagesDirs.length == 0) {
+            throw new GradleException("No OpenJDK build output found")
+        }
+        
+        def imagesDir = new File(imagesDirs[0], 'images')
+        def jdkDir = new File(imagesDir, 'jdk')
+        def jreDir = new File(imagesDir, 'jre')
+        
+        println "OpenJDK Build Verification:"
+        println "  JDK: ${jdkDir.exists() ? 'PRESENT' : 'MISSING'} - ${jdkDir}"
+        println "  JRE: ${jreDir.exists() ? 'PRESENT' : 'MISSING'} - ${jreDir}"
+        
+        if (jdkDir.exists()) {
+            def javaCmd = new File(jdkDir, 'bin/java')
+            if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+                javaCmd = new File(jdkDir, 'bin/java.exe')
+            }
+            
+            if (javaCmd.exists()) {
+                println "\nJava version:"
+                exec {
+                    commandLine javaCmd.absolutePath, '-version'
+                    standardOutput = System.out
+                    errorOutput = System.err
+                }
+            }
+        }
+    }
+}
+
 // Package task for creating distribution artifacts
 task packageJDK {
     group = 'distribution'
     description = 'Package full JDK distribution (requires OpenJDK build)'
+    dependsOn buildOpenJDK
+    
     doLast {
-        println 'JDK packaging will be implemented in v26.0-Alpha.2'
+        println 'JDK packaging will be fully implemented in v26.0-Alpha.3'
+        println 'For now, OpenJDK images are available in openjdk-25/build/*/images/jdk'
     }
 }
 
 task packageJRE {
     group = 'distribution'
     description = 'Package JRE distribution (requires OpenJDK build)'
+    dependsOn buildOpenJDK
+    
     doLast {
-        println 'JRE packaging will be implemented in v26.0-Alpha.3'
+        println 'JRE packaging will be fully implemented in v26.0-Alpha.3'
+        println 'For now, OpenJDK images are available in openjdk-25/build/*/images/jre'
     }
 }
 

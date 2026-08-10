@@ -64,10 +64,91 @@ public final class VmInfo {
     /**
      * Returns the VM vendor string.
      * 
-     * @return the vendor string (e.g., "AprismLab" for AprismJDK)
+     * @return the vendor string (e.g., "Aprism" for AprismJDK)
      */
     public static String getVendor() {
         return System.getProperty("java.vendor", "Unknown");
+    }
+    
+    /**
+     * Returns the VM name.
+     * 
+     * @return the VM name (e.g., "OpenJDK 64-Bit Server VM")
+     */
+    public static String getVmName() {
+        return System.getProperty("java.vm.name", "Unknown");
+    }
+    
+    /**
+     * Returns the VM version.
+     * 
+     * @return the VM version string
+     */
+    public static String getVmVersion() {
+        return System.getProperty("java.vm.version", "Unknown");
+    }
+    
+    /**
+     * Returns the build timestamp.
+     * 
+     * @return the build timestamp, or null if not available
+     * @since v26.0-Alpha.2
+     */
+    public static String getBuildTimestamp() {
+        return System.getProperty("aprismjdk.build.timestamp");
+    }
+    
+    /**
+     * Returns the build commit hash.
+     * 
+     * @return the git commit hash, or null if not available
+     * @since v26.0-Alpha.2
+     */
+    public static String getBuildCommit() {
+        return System.getProperty("aprismjdk.build.commit");
+    }
+    
+    /**
+     * Returns comprehensive build information.
+     * 
+     * @return a multi-line string with detailed build info
+     * @since v26.0-Alpha.2
+     */
+    public static String getBuildInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("AprismJDK Build Information\n");
+        sb.append("===========================\n");
+        
+        String aprismVersion = getAprismJdkVersion();
+        if (aprismVersion != null) {
+            sb.append("AprismJDK Version: ").append(aprismVersion).append("\n");
+        } else {
+            sb.append("Runtime: Stock OpenJDK (not AprismJDK)\n");
+        }
+        
+        sb.append("OpenJDK Version: ").append(getOpenJdkVersion()).append("\n");
+        sb.append("Java Version: ").append(System.getProperty("java.version")).append("\n");
+        sb.append("Vendor: ").append(getVendor()).append("\n");
+        sb.append("VM Name: ").append(getVmName()).append("\n");
+        sb.append("VM Version: ").append(getVmVersion()).append("\n");
+        
+        String buildTime = getBuildTimestamp();
+        if (buildTime != null) {
+            sb.append("Build Time: ").append(buildTime).append("\n");
+        }
+        
+        String commit = getBuildCommit();
+        if (commit != null) {
+            sb.append("Commit: ").append(commit).append("\n");
+        }
+        
+        sb.append("\nCapabilities:\n");
+        sb.append("  ClassRedefiner+: ").append(hasClassRedefinerPlus() ? "YES" : "NO").append("\n");
+        sb.append("  MethodHookRegistry+: ").append(hasMethodHookRegistryPlus() ? "YES" : "NO").append("\n");
+        sb.append("  BytecodeTransformer: ").append(hasBytecodeTransformer() ? "YES" : "NO").append("\n");
+        sb.append("  VmIntrospection: ").append(hasVmIntrospection() ? "YES" : "NO").append("\n");
+        
+        return sb.toString();
     }
     
     /**
