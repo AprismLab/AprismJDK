@@ -91,6 +91,13 @@ public final class AgentLogger {
     }
     
     /**
+     * Logs a warning message with exception details.
+     */
+    public void warn(String message, Throwable throwable) {
+        log("WARN", message + "\n" + formatThrowable(throwable));
+    }
+    
+    /**
      * Logs an error message.
      */
     public void error(String message) {
