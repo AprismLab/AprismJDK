@@ -9,20 +9,48 @@
 
 ### 验证步骤
 
-1. 在GitHub仓库创建验证文件：
-   ```
-   在 https://github.com/AprismLab/AprismJDK 创建文件：
-   .well-known/central-publisher-verification.txt
-   内容：p48mc1cw49
-   ```
+#### 方法1：GitHub验证文件（已完成）✅
+验证文件已创建并可访问：
+- 文件位置：`.well-known/central-publisher-verification.txt`
+- 访问URL：https://raw.githubusercontent.com/AprismLab/AprismJDK/main/.well-known/central-publisher-verification.txt
+- 内容：`p48mc1cw49`
 
-2. 或者在DNS记录中添加TXT记录：
-   ```
-   TXT记录: central-publisher-verification.aprismlab.com
-   值: p48mc1cw49
-   ```
+#### 方法2：GitHub Releases验证
+在GitHub仓库创建一个release，标题包含验证密钥：
+```
+Release标题：Maven Central Verification - p48mc1cw49
+或者在release描述中包含：p48mc1cw49
+```
 
-3. 验证完成后，命名空间状态会变为 "Verified"
+#### 方法3：DNS TXT记录验证
+在域名 `aprismlab.com` 添加TXT记录：
+```
+记录名：central-publisher-verification
+记录值：p48mc1cw49
+或者：
+记录名：_central-publisher
+记录值：p48mc1cw49
+```
+
+#### 方法4：手动触发验证
+1. 登录 https://central.sonatype.com/
+2. 进入 "Namespaces" 页面
+3. 找到 `com.aprismlab` 命名空间
+4. 点击 "Verify" 或 "Check Verification" 按钮
+5. 系统会检查GitHub仓库中的验证文件
+
+### 常见问题
+
+**Q: 验证文件已存在但状态仍是 Pending？**
+- 等待5-10分钟让Central Portal的爬虫检测
+- 在Portal中手动点击"Verify"按钮
+- 确认GitHub仓库是公开的
+- 检查仓库所有者与注册的组织名称匹配
+
+**Q: GitHub组织名称与包名不完全一致？**
+- GitHub: `AprismLab`
+- Package: `com.aprismlab`
+- 这是允许的，但需要在Portal中说明仓库URL
 
 ## 凭据配置
 
@@ -41,7 +69,7 @@ mavenCentralPassword=V8v3TkpiZR2BVqSANb4lEJDYM3aOzXa58
 ./gradlew test
 
 # 生成POM文件验证
-./gradlew generatePomFileForVerification
+./gradlew :aprismate-api:generatePomFileForMavenJavaPublication
 
 # 构建所有模块
 ./gradlew build
@@ -50,12 +78,12 @@ mavenCentralPassword=V8v3TkpiZR2BVqSANb4lEJDYM3aOzXa58
 ### 2. 发布到Maven Central
 
 ```bash
-# 发布所有模块
-./gradlew publish
+# 发布所有模块（跳过签名）
+./gradlew publish -x signMavenJavaPublication
 
 # 或者发布单个模块
-./gradlew :aprismate-api:publish
-./gradlew :aprismate-agent:publish
+./gradlew :aprismate-api:publish -x signMavenJavaPublication
+./gradlew :aprismate-agent:publish -x signMavenJavaPublication
 ```
 
 ### 3. Maven Central新流程
@@ -79,7 +107,7 @@ Maven Central要求：
 - [x] POM文件
 - [x] Sources JAR
 - [x] Javadoc JAR
-- [ ] GPG签名 (可选，建议Alpha版本暂不签名)
+- [ ] GPG签名 (可选，Alpha版本可暂不签名)
 
 ## 签名配置（可选）
 
@@ -104,6 +132,14 @@ dependencies {
 }
 ```
 
+```xml
+<dependency>
+    <groupId>com.aprismlab</groupId>
+    <artifactId>aprismate-api</artifactId>
+    <version>v26.1-Alpha.5</version>
+</dependency>
+```
+
 ## 注意事项
 
 1. **命名空间验证**: 必须先完成验证才能发布
@@ -124,3 +160,9 @@ dependencies {
 ```bash
 ./gradlew publish -x signMavenJavaPublication
 ```
+
+### 验证一直Pending
+1. 等待5-10分钟
+2. 在Portal手动点击"Verify"
+3. 尝试DNS验证方式
+4. 检查GitHub仓库是公开的
