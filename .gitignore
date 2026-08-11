@@ -42,3 +42,4 @@ openjdk-*/
 
 # Session logs and development notes (not for version control)
 FACT.md
+local.properties

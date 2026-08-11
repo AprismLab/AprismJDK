@@ -4,7 +4,7 @@ plugins {
 }
 
 allprojects {
-    group = 'com.aprismjdk'
+    group = 'com.aprismlab'
     version = project.property('aprismjdkVersion')
     
     repositories {
@@ -15,6 +15,7 @@ allprojects {
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+    apply from: "${rootProject.projectDir}/publishing.gradle"
     
     java {
         toolchain {

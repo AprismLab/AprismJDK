@@ -1,0 +1,73 @@
+// Maven Central Publishing Configuration
+// Apply this to subprojects that should be published
+
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            
+            groupId = 'com.aprismlab'
+            artifactId = project.name
+            version = project.version
+            
+            pom {
+                name = project.name
+                description = 'AprismJDK - OpenJDK distribution with deep runtime capabilities for Aprism loader ecosystem'
+                url = 'https://github.com/AprismLab/AprismJDK'
+                
+                licenses {
+                    license {
+                        name = 'GNU General Public License v2.0 with Classpath Exception'
+                        url = 'https://openjdk.org/legal/gplv2+ce.html'
+                    }
+                }
+                
+                developers {
+                    developer {
+                        id = 'aprismlab'
+                        name = 'AprismLab Team'
+                        email = 'dev@aprismlab.com'
+                    }
+                }
+                
+                scm {
+                    connection = 'scm:git:git://github.com/AprismLab/AprismJDK.git'
+                    developerConnection = 'scm:git:ssh://github.com:AprismLab/AprismJDK.git'
+                    url = 'https://github.com/AprismLab/AprismJDK'
+                }
+            }
+        }
+    }
+    
+    repositories {
+        maven {
+            name = "MavenCentral"
+            def releasesRepoUrl = "https://central.sonatype.com/api/v1/publisher/upload?name=${project.name}-${project.version}&publishingType=USER_MANAGED"
+            def snapshotsRepoUrl = "https://central.sonatype.com/api/v1/publisher/upload?name=${project.name}-${project.version}-SNAPSHOT&publishingType=USER_MANAGED"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            
+            credentials {
+                username = project.findProperty("mavenCentralUsername") ?: System.getenv("MAVEN_CENTRAL_USERNAME")
+                password = project.findProperty("mavenCentralPassword") ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
+            }
+        }
+    }
+}
+
+// Signing configuration (optional for development, required for Maven Central)
+signing {
+    // Only sign if credentials are available
+    required { gradle.taskGraph.hasTask("publish") }
+    sign publishing.publications.mavenJava
+}
+
+// Generate POM file for verification
+tasks.register('generatePomFileForVerification') {
+    dependsOn 'generatePomFileForMavenJavaPublication'
+    doLast {
+        println "POM file generated at: ${project.buildDir}/publications/mavenJava/pom-default.xml"
+    }
+}
