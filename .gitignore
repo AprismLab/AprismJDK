@@ -9,16 +9,28 @@ build/
 *.iml
 *.ipr
 *.iws
+*.swp
+*.swo
+*~
+nbproject/
+nbactions.xml
+nb-configuration.xml
+.project
+.classpath
+.settings/
+.factorypath
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Compiled class files
 *.class
 
 # Log files
 *.log
+logs/
 
 # Package files
 *.jar
@@ -43,3 +55,7 @@ openjdk-*/
 # Session logs and development notes (not for version control)
 FACT.md
 local.properties
+
+# AI agent session archives
+.qwen-agent-sessions/
+.cherry_migration/
