@@ -51,6 +51,9 @@ target/
 
 # OpenJDK source and build artifacts (external dependency, not tracked)
 openjdk-*/
+# Fork build outputs inside WSL home are not visible here; local image
+# staging dir used by packaging tasks:
+releases/
 
 # Session logs and development notes (not for version control)
 FACT.md
