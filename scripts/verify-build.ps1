@@ -8,9 +8,10 @@ $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 if (-not $ImageDir) {
     $candidates = Get-ChildItem "$ProjectRoot\openjdk-25\build" -Directory -ErrorAction SilentlyContinue |
-        ForEach-Object { Join-Path $_.FullName "images\jdk" } | Where-Object { Test-Path $_ }
+        ForEach-Object { Join-Path $_.FullName "images\jdk" } |
+        Where-Object { (Test-Path (Join-Path $_ "bin\java.exe")) }
     if (-not $candidates) { throw "No built image found under openjdk-25\build. Build first." }
-    $ImageDir = $candidates[0]
+    $ImageDir = @($candidates)[0]
 }
 
 $java = Join-Path $ImageDir "bin\java.exe"
