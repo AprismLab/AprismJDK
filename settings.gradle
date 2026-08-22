@@ -3,6 +3,7 @@ rootProject.name = 'AprismJDK'
 include 'aprismate-agent'
 include 'aprismate-api'
 include 'aprismate-tests'
+include 'aprismate-minecraft'
 
 // Future modules (deferred to later alphas)
 // include 'aprismate-perf'
