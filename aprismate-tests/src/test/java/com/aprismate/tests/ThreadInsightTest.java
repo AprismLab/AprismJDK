@@ -173,10 +173,14 @@ class ThreadInsightTest {
                 startLatch.countDown();
                 try {
                     startLatch.await();
-                    // Do some CPU work
+                    // Do enough CPU work to exceed clock-resolution granularity
+                    // (100k iterations could finish within one tick on fast hosts)
                     long sum = 0;
-                    for (int j = 0; j < 100000; j++) {
-                        sum += j;
+                    for (int j = 0; j < 5_000_000; j++) {
+                        sum += j * 31;
+                    }
+                    if (sum == 42L) {
+                        throw new AssertionError();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
