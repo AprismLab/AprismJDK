@@ -653,173 +653,36 @@ By v26.1 GA, AprismJDK must:
 
 ---
 
-# ROADMAP v2: v26.2 - v26.3 (Active Plan)
+# Active Plan Pointer: v26.2 - v26.3
 
-> The original v26.0/v26.1 plan was executed out of order by a previous AI
-> session: the OpenJDK fork/build milestones (Alpha.3-7) were skipped and
-> replaced with Java-layer API stubs under mixed version tags. The version
-> numbers v26.0 and v26.1 are spent; development continues on v26.2/v26.3.
-> See FACT.md Sessions 9/10/11 for the full audit history.
+> The v26.0/v26.1 lines produced API stubs and Java-layer implementations
+> but never executed the core OpenJDK fork/build milestones (Alpha.3-7
+> of the original plan). Version numbers v26.0/v26.1 are spent; active
+> development continues under **v26.2** and **v26.3**.
 >
-> Author: BlockConnect@StarsailsClover | Status: Active
-> Updated: 2026-08-18
-
-## Positioning Correction
-
-AprismJDK is **not** a Minecraft optimization tool. Minecraft support is
-incidental. AprismJDK's core mission:
-
-> **A Java Runtime that empowers developers: stronger capabilities,
-> better development experience, extended JDK/Java boundaries, and
-> AI + Coding integration.**
-
-## v26.2 Line: Real JDK Foundation (10 releases)
-
-Goal: turn the existing API surface into a runtime that actually ships
-as a JDK variant. Strategy note: MSYS2 `fixpath` path-corruption bugs
-(documented in .trae/sessions.md) block native Windows OpenJDK builds;
-WSL2 or Cygwin is required for fork builds. Alpha.1 therefore validates
-the API against a prebuilt OpenJDK 25 while fork infrastructure lands.
-
-### v26.2-Alpha.1: Environment Validation & Baseline
-
-**Deliverables**:
-- Build environment audit recorded (MSYS2/MSVC/Boot JDK status)
-- `aprismate-api` + `aprismate-agent` build & full test pass against
-  prebuilt OpenJDK 25 (Temurin 25.0.3+9)
-- Version string corrected to v26.2-Alpha.1
-- Build environment documentation (`docs/13-build-environment.md`)
-- WSL2/Cygwin evaluation for future fork builds
-
-**Exit criteria**: All modules compile; test suite green on JDK 25;
-version metadata consistent.
-
-### v26.2-Alpha.2: Module System & JPMS Hardening
-
-**Deliverables**:
-- `module-info.java` for all three modules (`jdk.aprismate`,
-  `aprismate.agent`, tests)
-- jdeps validation of module graph
-- Multi-Release JAR layout for Java 17/21/25 targets
-- SBOM generation (CycloneDX)
-
-**Exit criteria**: `jdeps --check` clean; modular jar runs on 17/21/25.
-
-### v26.2-Alpha.3: Fork Infrastructure (WSL2)
-
-**Deliverables**:
-- WSL2 Ubuntu installed and verified as build host
-- OpenJDK 25 configure + first successful `make images` in WSL2
-- Build time baseline documented
-- `jdk/patches/` + `jdk/overlay/` directory structure created
-- `.gitattributes` for LF/CRLF handling across the fork tree
-
-**Exit criteria**: Unmodified OpenJDK 25 image boots in WSL2; patch
-directory scaffold committed.
-
-### v26.2-Alpha.4: Branding Patch (Patch 001)
-
-**Deliverables**: vendor name/URL/version injection; `java -version`
-shows AprismJDK identity; reproducible patch application script.
-
-### v26.2-Alpha.5: jdk.aprismate Module Injection (Patches 002-003)
-
-**Deliverables**: `aprismate-api` sources compiled into the fork image
-as module `jdk.aprismate`; `java --list-modules` includes it; stock-JDK
-fallback behavior unchanged.
-
-### v26.2-Alpha.6: Agent Embedding (Patches 004-005)
-
-**Deliverables**: AprismateAgent built as `lib/aprismate.jar` inside the
-image; `-javaagent:lib/aprismate.jar` loads via premain/agentmain;
-manifest correct.
-
-### v26.2-Alpha.7: Auto-Load Flag (Patch 006)
-
-**Deliverables**: `-XX:+AprismateAgent` VM flag wires the agent before
-main; flag ignored (with warning) when agent absent.
-
-### v26.2-Alpha.8: Cross-Version Compatibility Sweep
-
-**Deliverables**: full test matrix (17/21/25 x stock/fork); capability
-descriptor accuracy per platform; compatibility matrix doc refresh.
-
-### v26.2-Alpha.9: Packaging & Distribution
-
-**Deliverables**: tar.gz/zip packaging; SHA-256 checksums; cosign
-keyless signing; GitHub Release workflow; SBOM attached.
-
-### v26.2 GA
-
-Feature freeze; regression suite green; bilingual docs complete; signed
-release published.
-
-## v26.3 Line: Developer Power & AI-Coding Runtime (10 releases)
-
-Goal: deliver the capabilities that make AprismJDK worth using — deeper
-introspection, hot iteration, hardware awareness, and AI-friendly
-runtime surfaces. Minecraft optimization rides on these primitives as a
-consumer, not the goal itself.
-
-### v26.3-Alpha.1: Runtime Introspection Hardening
-
-ThreadInsight/HeapInsight/JitInsight move from JMX-backed stubs to
-accurate low-overhead implementations; capability descriptor wired to
-real availability detection.
-
-### v26.3-Alpha.2: Hot Reload Foundations
-
-BytecodeTransformer gains retransform orchestration + change-set diffing;
-safe class evolution rules documented (method bodies first).
-
-### v26.3-Alpha.3: Reflection Elimination Framework
-
-`jdk.aprismate.reflect`: runtime bytecode generation for direct invoker/
-field accessors replacing Method.invoke/Field.get hot paths.
-
-### v26.3-Alpha.4: Memory & Concurrency Primitives GA
-
-Arena/DirectBufferPool/OffHeapMap/LockFreeQueue/FiberScheduler promoted
-from reference stubs to supported APIs with stress tests.
-
-### v26.3-Alpha.5: Hardware Awareness APIs
-
-CpuFeatures/CacheTopology/NumaTopology read via FFM/sysconf; advisory
-only; graceful absence everywhere.
-
-### v26.3-Alpha.6: AI-Coding Surface Part 1 — Structured Introspection
-
-Machine-readable runtime state export (JSON): loaded classes, JIT state,
-GC pressure, thread topology — designed for LLM consumption in coding
-agents.
-
-### v26.3-Alpha.7: AI-Coding Surface Part 2 — Safe Experimentation Hooks
-
-Sandboxed evaluation of candidate optimizations (e.g., try-transform +
-rollback), enabling agents to propose and verify runtime changes without
-crashing the host.
-
-### v26.3-Alpha.8: Performance Pass
-
-Agent attach <50ms budget; hook invocation overhead benchmarks; zero-
-allocation fast paths for introspection APIs.
-
-### v26.3-Alpha.9: Minecraft Integration Test Line
-
-Real-game validation using MDL (`--java-path` to AJR image); Aprism
-loader capability upgrade path exercised; perf comparison vs stock JDK.
-
-### v26.3 GA
-
-Full-featured release: all capability tiers fail-safe, docs EN+ZH,
-signed distribution, migration guide from plain JDK workflows.
-
-## Deferred Beyond v26.3
-
-- Cpp2Java/Rust2Java generator tooling (FFM bridges mature first)
-- Structural class redefinition requiring HotSpot patches (ClassRedefiner+
-  stays API-stable, impl-gated until VM patch line lands)
-- Regional GC experiments; installer packages; GraalVM research
+> The authoritative 20-release plan now lives in
+> [`docs/ROADMAP-v26.2-v26.3.md`](ROADMAP-v26.2-v26.3.md):
+>
+> - **v26.2 — Real JDK Foundation**: environment, first OpenJDK build,
+>   patch framework, branding, `jdk.aprismate` module injection,
+>   AprismateAgent embed, auto-load flag, multi-platform, packaging, GA.
+> - **v26.3 — Minecraft Optimization Suite**: MC detection/profiling,
+>   bytecode pre-optimization, reflection elimination, regionalized GC,
+>   JIT pre-compilation, fiber scheduler, cross-region messaging,
+>   predictive load balancing, client-side optimization, GA.
+>
+> Status notes: MSYS2 is blocked for native fork builds (fixpath
+> postmortem in FACT.md Session 11); native builds move to WSL2 at the
+> Alpha.2/Alpha.3 boundary. v26.2-Alpha.1 validated the full API surface
+> on prebuilt Temurin JDK 25 (647 tests green) per the strategy decision
+> recorded in FACT.md Session 11.
+>
+> Positioning reminder (project charter): AprismJDK is a developer-power
+> runtime that extends JDK/Java boundaries; Minecraft optimization is an
+> incidental consumer of these capabilities, not the mission itself.
+> Longer-term directions beyond v26.3 (AI+Coding surfaces, hardware
+> awareness, Cpp2Java/Rust2Java bridges) are tracked as candidates for
+> the v26.4+ planning cycle.
 
 ---
 

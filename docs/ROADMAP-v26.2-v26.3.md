@@ -46,6 +46,17 @@ pre-compilation, fiber scheduling, cross-region messaging).
 - `build/` directory created with generated Makefiles
 - Toolchain documentation complete
 
+> **STATUS (2026-08-18): COMPLETE with scope pivot.**
+>
+> MSYS2 native fork builds are BLOCKED (make reports cygwin build;
+> fixpath backslash/atfile corruption — postmortem in FACT.md Session
+> 11 and .trae/sessions.md). Native fork work moves to WSL2 starting
+> Alpha.2. Alpha.1 was re-scoped to validate the full API surface on
+> prebuilt Temurin JDK 25: Gradle wrapper 9.7.0, toolchain 25,
+> Mockito 5.23 — **647 tests, 0 failures, 3 skipped** (FACT.md
+> Session 11). docs/13-build-environment.md published; ZH mirror
+> pending.
+
 ---
 
 ### v26.2-Alpha.2: First OpenJDK Build
@@ -63,6 +74,14 @@ pre-compilation, fiber scheduling, cross-region messaging).
 - `openjdk-25/build/*/images/jdk/bin/java -version` works
 - Build time documented
 - Tag: `v26.2-Alpha.2`
+
+> **PLAN UPDATE (2026-08-18)**: build host is **WSL2 Ubuntu**, not
+> native Windows. Steps: install WSL2 + Ubuntu LTS; apt install
+> build-essential autoconf zip unzip; boot JDK 24/25 inside WSL;
+> reuse clean `openjdk-25/` checkout (tag jdk-25+10). Configure flags
+> from the Session 10 attempt carry over minus Windows-specific ones.
+> Disk guard: require >15 GB free before starting; MC caches eviction
+> needs user sign-off.
 
 ---
 
