@@ -59,3 +59,7 @@ local.properties
 # AI agent session archives
 .qwen-agent-sessions/
 .cherry_migration/
+.trae/
+.opencode-data/
+.claude/
+.codex/

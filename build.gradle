@@ -19,7 +19,7 @@ subprojects {
     
     java {
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(25)
         }
         withSourcesJar()
         withJavadocJar()
@@ -37,6 +37,17 @@ subprojects {
             exceptionFormat 'full'
             showStandardStreams = false
         }
+    }
+
+    tasks.withType(Javadoc) {
+        options.encoding = 'UTF-8'
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
+    dependencies {
+        testRuntimeOnly "org.junit.platform:junit-platform-launcher:${junitPlatformVersion}"
+        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
     }
 }
 

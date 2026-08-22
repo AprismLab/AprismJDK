@@ -14,19 +14,4 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// test task configuration moved below
-
-compileJava {
-    options.compilerArgs << '--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED'
-    options.compilerArgs << '--add-exports=java.base/sun.nio.ch=ALL-UNNAMED'
-    options.compilerArgs << '--enable-preview'
-}
-
-compileTestJava {
-    options.compilerArgs << '--enable-preview'
-}
-
-test {
-    jvmArgs '--enable-preview'
-    useJUnitPlatform()
-}
+// FFM APIs (java.lang.foreign) are final since Java 22; no preview flags needed on toolchain 25.

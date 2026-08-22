@@ -1,12 +1,12 @@
 # OpenJDK Build Wrapper for AprismJDK (Windows PowerShell)
-# This script wraps OpenJDK build process with Aprism customizations
+# Uses MSYS2 for POSIX toolchain and MSVC for native compiler
 
 param(
-    [string]$BootJdk = $env:JAVA_HOME,
-    [string]$BuildType = "release",
-    [string]$JvmVariants = "server",
+    [string]$BootJdk = "",
     [string]$DebugLevel = "release",
-    [string]$VsVersion = "2022"
+    [string]$VsVersion = "",  # Auto-detected if empty; override for specific versions
+    [string]$Target = "configure",
+    [string]$ConfigureArgs = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -14,25 +14,25 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 $OpenJdkDir = Join-Path $ProjectRoot "openjdk-25"
+$Msys2Bash = "C:\msys64\usr\bin\bash.exe"
 
-Write-Host "=== AprismJDK OpenJDK Build Wrapper ===" -ForegroundColor Cyan
-Write-Host "Platform: Windows"
-Write-Host "OpenJDK Directory: $OpenJdkDir"
-Write-Host "Boot JDK: $BootJdk"
-Write-Host "Build Type: $BuildType"
-Write-Host "Debug Level: $DebugLevel"
-Write-Host "VS Version: $VsVersion"
-Write-Host "========================================" -ForegroundColor Cyan
-
-# Verify OpenJDK source exists
-if (-not (Test-Path $OpenJdkDir)) {
-    Write-Error "OpenJDK source directory not found at $OpenJdkDir"
-    exit 1
+if (-not $BootJdk) {
+    $BootJdk = $env:JAVA_HOME
+}
+if (-not $BootJdk) {
+    $BootJdk = "C:\Users\Sails\AppData\Local\Programs\jdk-24-boot\jdk-24"
 }
 
-# Verify boot JDK
-if (-not $BootJdk) {
-    Write-Error "Boot JDK not specified. Please set JAVA_HOME or use -BootJdk parameter"
+Write-Host "=== AprismJDK OpenJDK Build Wrapper ===" -ForegroundColor Cyan
+Write-Host "Platform: Windows (MSYS2 + MSVC)"
+Write-Host "OpenJDK Directory: $OpenJdkDir"
+Write-Host "Boot JDK: $BootJdk"
+Write-Host "Debug Level: $DebugLevel"
+Write-Host "Target: $Target"
+Write-Host "========================================" -ForegroundColor Cyan
+
+if (-not (Test-Path $OpenJdkDir)) {
+    Write-Error "OpenJDK source directory not found at $OpenJdkDir"
     exit 1
 }
 
@@ -41,112 +41,148 @@ if (-not (Test-Path $BootJdk)) {
     exit 1
 }
 
-# Check for Cygwin or WSL
-$BashPath = $null
-$CygwinPaths = @(
-    "C:\cygwin64\bin\bash.exe",
-    "C:\cygwin\bin\bash.exe"
-)
-
-foreach ($path in $CygwinPaths) {
-    if (Test-Path $path) {
-        $BashPath = $path
-        break
-    }
+if (-not (Test-Path $Msys2Bash)) {
+    Write-Error "MSYS2 not found at $Msys2Bash. Install MSYS2 first."
+    exit 1
 }
 
-if (-not $BashPath) {
-    # Try to find bash in PATH
-    $BashPath = (Get-Command bash -ErrorAction SilentlyContinue).Source
+# Convert Windows paths to MSYS2 paths
+function ConvertTo-Msys2Path([string]$winPath) {
+    $drive = $winPath.Substring(0, 1).ToLower()
+    $rest = $winPath.Substring(2) -replace '\\', '/'
+    return "/$drive$rest"
 }
 
-if (-not $BashPath) {
-    Write-Host ""
-    Write-Host "WARNING: Cygwin/MSYS2 bash not found." -ForegroundColor Yellow
-    Write-Host "OpenJDK requires Cygwin or MSYS2 to build on Windows." -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "Please install Cygwin from: https://www.cygwin.com/" -ForegroundColor Yellow
-    Write-Host "Required packages: make, m4, autoconf, zip, unzip" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "For now, this script will create a stub build configuration." -ForegroundColor Yellow
-    Write-Host ""
-    
-    # Create stub marker
-    $StubFile = Join-Path $ProjectRoot "build\openjdk-build-stub.txt"
-    New-Item -ItemType Directory -Force -Path (Split-Path $StubFile) | Out-Null
-    Set-Content -Path $StubFile -Value "OpenJDK build requires Cygwin/MSYS2 on Windows"
-    
-    Write-Host "Created stub marker at: $StubFile" -ForegroundColor Yellow
-    exit 0
-}
+$MsysBootJdk = ConvertTo-Msys2Path $BootJdk
+$MsysOpenJdkDir = ConvertTo-Msys2Path $OpenJdkDir
+$MsysProjectRoot = ConvertTo-Msys2Path $ProjectRoot
 
-Write-Host "Found bash at: $BashPath" -ForegroundColor Green
-
-# Set up environment for Visual Studio
+# Find MSVC vcvars64.bat
 $VsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
 if (Test-Path $VsWhere) {
-    Write-Host "Detecting Visual Studio installation..."
-    $VsPath = & $VsWhere -latest -property installationPath
-    if ($VsPath) {
-        Write-Host "Found Visual Studio at: $VsPath" -ForegroundColor Green
-        
-        # Note: vcvarsall.bat needs to be called from within Cygwin bash
-        # This will be handled by the bash script
+    $VsInstallPath = & $VsWhere -latest -property installationPath
+    $VcVarsBat = Join-Path $VsInstallPath "VC\Auxiliary\Build\vcvars64.bat"
+    Write-Host "MSVC vcvars64: $VcVarsBat" -ForegroundColor Green
+
+    # Auto-detect VS version if not specified
+    if (-not $VsVersion) {
+        $VsProductLine = & $VsWhere -latest -property catalog_productLineVersion
+        $VsVersion = $VsProductLine
+        Write-Host "Auto-detected VS product line: $VsVersion" -ForegroundColor Green
     }
 } else {
-    Write-Host "WARNING: vswhere.exe not found. Visual Studio detection skipped." -ForegroundColor Yellow
+    Write-Error "Visual Studio vswhere not found"
+    exit 1
 }
 
-# Convert Windows paths to Cygwin paths for the bash script
-$CygwinBootJdk = $BootJdk -replace '\\', '/' -replace '^([A-Z]):', '/cygdrive/$1'
-$CygwinOpenJdkDir = $OpenJdkDir -replace '\\', '/' -replace '^([A-Z]):', '/cygdrive/$1'
-
-# Create a temporary bash script
+# Create a temporary bash script using single-quoted here-string (no PS expansion)
 $TempScript = Join-Path $env:TEMP "aprism-build-jdk.sh"
-$ScriptContent = @"
-#!/bin/bash
-set -e
 
-export BOOT_JDK='$CygwinBootJdk'
-export BUILD_TYPE='$BuildType'
-export DEBUG_LEVEL='$DebugLevel'
-export JVM_VARIANTS='$JvmVariants'
-export VS_VERSION='$VsVersion'
+# Build the bash script content
+$bashLines = @(
+    '#!/bin/bash',
+    'set -ex',
+    '',
+    '# Set locale to avoid cmd.exe output corruption',
+    'export LANG=C',
+    'export LC_ALL=C',
+    'export MSYS2_ARG_CONV_EXCL="*"',
+    "export BOOT_JDK='$MsysBootJdk'",
+    "export DEBUG_LEVEL='$DebugLevel'",
+    "export VS_VERSION='$VsVersion'",
+    '',
+    "cd '$MsysOpenJdkDir'",
+    ''
+)
 
-cd '$CygwinOpenJdkDir'
-
-echo "Running OpenJDK configure..."
-bash configure \
-    --with-boot-jdk=`$BOOT_JDK \
-    --with-debug-level=`$DEBUG_LEVEL \
-    --with-jvm-variants=`$JVM_VARIANTS \
-    --enable-warnings-as-errors=no \
-    --with-vendor-name=Aprism \
-    --with-vendor-url=https://github.com/anomalyco/aprism \
-    --with-vendor-bug-url=https://github.com/anomalyco/aprism/issues \
-    --with-vendor-vm-bug-url=https://github.com/anomalyco/aprism/issues \
-    --with-toolchain-version=`$VS_VERSION
-
-echo "Building OpenJDK images..."
-make images
-
-echo "Build complete!"
-"@
-
-Set-Content -Path $TempScript -Value $ScriptContent -Encoding UTF8
-
-# Run the bash script
-Write-Host ""
-Write-Host "Launching OpenJDK build via Cygwin bash..." -ForegroundColor Cyan
-& $BashPath $TempScript
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Build failed with exit code $LASTEXITCODE"
-    exit $LASTEXITCODE
+switch ($Target) {
+    "configure" {
+        $bashLines += @(
+            'echo "Running OpenJDK configure..."',
+            'bash configure \',
+            '    "--with-boot-jdk=$BOOT_JDK" \',
+            '    --with-debug-level=$DEBUG_LEVEL \',
+            '    --with-jvm-variants=server \',
+            '    --enable-warnings-as-errors=no \',
+            '    --with-vendor-name=AprismLab \',
+            '    --with-vendor-url=https://github.com/AprismLab/AprismJDK \',
+            '    --with-vendor-bug-url=https://github.com/AprismLab/AprismJDK/issues \',
+            '    --with-vendor-vm-bug-url=https://github.com/AprismLab/AprismJDK/issues \',
+            '    --with-version-opt=AprismJDK \',
+            '    --with-version-build=1'
+        )
+        if ($ConfigureArgs) {
+            $bashLines += "    $ConfigureArgs"
+        }
+        $bashLines += @(
+            '',
+            'echo "Configure complete!"'
+        )
+    }
+    "make" {
+        $bashLines += @(
+            'echo "Building OpenJDK images..."',
+            'make images CONF=*',
+            '',
+            'echo "Build complete!"'
+        )
+    }
+    "configure-make" {
+        $bashLines += @(
+            'echo "Running OpenJDK configure..."',
+            'bash configure \',
+            '    "--with-boot-jdk=$BOOT_JDK" \',
+            '    --with-debug-level=$DEBUG_LEVEL \',
+            '    --with-jvm-variants=server \',
+            '    --enable-warnings-as-errors=no \',
+            '    --with-vendor-name=AprismLab \',
+            '    --with-vendor-url=https://github.com/AprismLab/AprismJDK \',
+            '    --with-vendor-bug-url=https://github.com/AprismLab/AprismJDK/issues \',
+            '    --with-vendor-vm-bug-url=https://github.com/AprismLab/AprismJDK/issues \',
+            '    --with-version-opt=AprismJDK \',
+            '    --with-version-build=1'
+        )
+        if ($ConfigureArgs) {
+            $bashLines += "    $ConfigureArgs"
+        }
+        $bashLines += @(
+            '',
+            'echo "Building OpenJDK images..."',
+            'make images CONF=*',
+            '',
+            'echo "Build complete!"'
+        )
+    }
+    "clean" {
+        $bashLines += @(
+            'echo "Cleaning build..."',
+            'make clean',
+            'echo "Clean complete!"'
+        )
+    }
+    default {
+        Write-Error "Unknown target: $Target"
+        exit 1
+    }
 }
 
-# Clean up temp script
-Remove-Item $TempScript -Force
+$ScriptContent = $bashLines -join "`n"
+[System.IO.File]::WriteAllText($TempScript, $ScriptContent, [System.Text.UTF8Encoding]::new($false))
+
+$MsysTempScript = ConvertTo-Msys2Path $TempScript
+
+Write-Host ""
+Write-Host "Launching build via MSYS2 bash..." -ForegroundColor Cyan
+Write-Host "Script: $TempScript (MSYS2: $MsysTempScript)"
+& $Msys2Bash -lc "bash '$MsysTempScript'"
+
+$exitCode = $LASTEXITCODE
+Remove-Item $TempScript -Force -ErrorAction SilentlyContinue
+
+if ($exitCode -ne 0) {
+    Write-Error "Build failed with exit code $exitCode"
+    exit $exitCode
+}
 
 Write-Host ""
 Write-Host "=== Build Successful ===" -ForegroundColor Green
