@@ -13,7 +13,14 @@ PATCHES="$PROJ/jdk/patches"
 
 cd "$SRC"
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "ERROR: openjdk-25 working tree is dirty. Run scripts/revert-patches.sh first."
+  echo "ERROR: openjdk-25 working tree has tracked modifications. Run scripts/revert-patches.sh first."
+  exit 1
+fi
+UNTRACKED="$(git ls-files --others --exclude-standard | head -5)"
+if [ -n "$UNTRACKED" ]; then
+  echo "ERROR: openjdk-25 working tree has untracked files (patch overlay leftovers?):"
+  echo "$UNTRACKED"
+  echo "Run scripts/revert-patches.sh first."
   exit 1
 fi
 
