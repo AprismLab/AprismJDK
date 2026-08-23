@@ -38,12 +38,16 @@ patches + overlay are version-controlled.
 
 | # | Name | Line | Status |
 |---|------|------|--------|
-| 001 | vendor-branding (AprismJDK identity in java -version) | v26.2-Alpha.4 | done |
-| 002 | add jdk.aprismate module sources (overlay import) | v26.2-Alpha.5 | planned |
-| 003 | register + export jdk.aprismate in module build | v26.2-Alpha.5 | planned |
-| 004 | bundle aprismate-agent jar into images | v26.2-Alpha.6 | planned |
-| 005 | agent premain wiring / manifest integration | v26.2-Alpha.6 | planned |
-| 006 | `-XX:+AprismateAgent` auto-load flag | v26.2-Alpha.7 | planned |
+| 001 | aprismjdk-branding (identity in java -version) | v26.2-Alpha.4 | done |
+| 002 | aprismjdk-version-property (VmInfo capability wiring) | v26.2-Alpha.5 | done |
+| 003+ | reserved for agent embed / auto-load flag work | v26.2-Alpha.6-7 | planned |
+
+Historical note: original plan had 002/003 as "add module sources" +
+"register/export module". Empirically the build auto-discovers modules
+via src/*/share/classes/module-info.java, so module addition is carried
+entirely by jdk/overlay/ (see scripts/sync-overlay.sh); no make-file
+patch was needed. The freed numbering was reassigned to the capability-
+property wiring.
 
 ## Overlay directory
 

@@ -21,6 +21,7 @@ exec bash configure \
   --disable-javac-server \
   --with-tools-dir="$TOOLS_DIR" \
   --with-vendor-name=AprismLab \
+  --with-vendor-version-string=AJR \
   --with-vendor-url=https://github.com/AprismLab/AprismJDK \
   --with-vendor-bug-url=https://github.com/AprismLab/AprismJDK/issues \
   --with-vendor-vm-bug-url=https://github.com/AprismLab/AprismJDK/issues \

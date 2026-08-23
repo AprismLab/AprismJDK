@@ -1,0 +1,16 @@
+diff --git a/src/java.base/share/classes/java/lang/VersionProps.java.template b/src/java.base/share/classes/java/lang/VersionProps.java.template
+index d58be681f..f949688f6 100644
+--- a/src/java.base/share/classes/java/lang/VersionProps.java.template
++++ b/src/java.base/share/classes/java/lang/VersionProps.java.template
+@@ -105,6 +105,11 @@ class VersionProps {
+         props.put("java.runtime.name", java_runtime_name);
+         if (!VENDOR_VERSION.isEmpty())
+             props.put("java.vendor.version", VENDOR_VERSION);
++        // AprismJDK: capability-detection contract with jdk.aprismate.VmInfo.
++        // Set whenever a vendor version is configured (distro builds only);
++        // absent on stock OpenJDK so stock-JDK fallback stays intact.
++        if (!VENDOR_VERSION.isEmpty())
++            props.put("aprismjdk.version", java_version);
+ 
+         props.put("java.class.version", CLASSFILE_MAJOR_MINOR);
+ 
