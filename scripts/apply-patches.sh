@@ -13,7 +13,14 @@ PATCHES="$PROJ/jdk/patches"
 
 cd "$SRC"
 if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "ERROR: openjdk-25 working tree is dirty. Run scripts/revert-patches.sh first."
+  echo "ERROR: openjdk-25 working tree has tracked modifications. Run scripts/revert-patches.sh first."
+  exit 1
+fi
+UNTRACKED="$(git ls-files --others --exclude-standard | head -5)"
+if [ -n "$UNTRACKED" ]; then
+  echo "ERROR: openjdk-25 working tree has untracked files (patch overlay leftovers?):"
+  echo "$UNTRACKED"
+  echo "Run scripts/revert-patches.sh first."
   exit 1
 fi
 
@@ -26,8 +33,15 @@ echo "=== applying patches ==="
 shopt -s nullglob
 for p in "$PATCHES"/[0-9][0-9][0-9]-*.patch; do
   echo "-- $(basename "$p")"
-  git apply -p1 --check "$p" || { echo "FAILED check: $p"; exit 1; }
-  git apply -p1 "$p"
+  # The git on PATH may be the Windows build (no /cygdrive support);
+  # hand it mixed-mode paths.
+  if command -v cygpath >/dev/null 2>&1; then
+    p_arg="$(cygpath -m "$p")"
+  else
+    p_arg="$p"
+  fi
+  git apply -p1 --check "$p_arg" || { echo "FAILED check: $p"; exit 1; }
+  git apply -p1 "$p_arg"
 done
 
 echo "=== series applied cleanly ==="

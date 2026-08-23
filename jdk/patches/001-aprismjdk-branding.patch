@@ -1,0 +1,30 @@
+diff --git a/make/conf/branding.conf b/make/conf/branding.conf
+index 912e4f622..b39e65afb 100644
+--- a/make/conf/branding.conf
++++ b/make/conf/branding.conf
+@@ -23,16 +23,16 @@
+ # questions.
+ #
+ 
+-LAUNCHER_NAME=openjdk
+-PRODUCT_NAME=OpenJDK
++LAUNCHER_NAME=aprismjdk
++PRODUCT_NAME=AprismJDK
+ PRODUCT_SUFFIX="Runtime Environment"
+ JDK_RC_PLATFORM_NAME=Platform
+-COMPANY_NAME=N/A
+-HOTSPOT_VM_DISTRO="OpenJDK"
+-VENDOR_URL=https://openjdk.org/
+-VENDOR_URL_BUG=https://bugreport.java.com/bugreport/
+-VENDOR_URL_VM_BUG=https://bugreport.java.com/bugreport/crash.jsp
++COMPANY_NAME=AprismLab
++HOTSPOT_VM_DISTRO="AprismJDK"
++VENDOR_URL=https://github.com/AprismLab/AprismJDK
++VENDOR_URL_BUG=https://github.com/AprismLab/AprismJDK/issues
++VENDOR_URL_VM_BUG=https://github.com/AprismLab/AprismJDK/issues
+ 
+ # Might need better names for these
+-MACOSX_BUNDLE_NAME_BASE="OpenJDK"
+-MACOSX_BUNDLE_ID_BASE="net.java.openjdk"
++MACOSX_BUNDLE_NAME_BASE="AprismJDK"
++MACOSX_BUNDLE_ID_BASE="com.aprismlab.aprismjdk"

@@ -9,8 +9,9 @@ SRC="$PROJ/openjdk-25"
 
 cd "$SRC"
 git checkout -- .
-# Remove untracked files that came from overlay copy (keep .git, build)
-git clean -fd -- src/jdk.aprismate 2>/dev/null || true
+# Remove untracked non-ignored files (overlay copies, strays); build/ is
+# upstream-ignored so plain -fd leaves it intact.
+git clean -fd
 
 echo "=== upstream tree restored ==="
 git status --short | head -5
