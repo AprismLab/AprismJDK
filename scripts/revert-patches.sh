@@ -10,8 +10,9 @@ SRC="$PROJ/openjdk-25"
 cd "$SRC"
 git checkout -- .
 # Remove untracked non-ignored files (overlay copies, strays); build/ is
-# upstream-ignored so plain -fd leaves it intact.
-git clean -fd
+# upstream-ignored so plain -fd leaves it intact. The staged agent jar is
+# a build INPUT and survives reverts.
+git clean -fd -e lib/aprismate.jar
 
 echo "=== upstream tree restored ==="
 git status --short | head -5

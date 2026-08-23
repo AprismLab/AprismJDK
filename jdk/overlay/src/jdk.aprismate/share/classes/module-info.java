@@ -50,6 +50,9 @@ module jdk.aprismate {
     exports jdk.aprismate.serialization.impl;
     exports jdk.aprismate.util;
 
-    // aprism.agent.api.metrics ships unexported: internal support surface
-    // consumed by the embedded AprismateAgent (Alpha.6), not public API.
+    // aprism.agent.api.metrics: internal support surface consumed by the
+    // embedded AprismateAgent running on the application class loader;
+    // implementations cross the module boundary, so it must be exported
+    // even though it is not public API.
+    exports aprism.agent.api.metrics;
 }

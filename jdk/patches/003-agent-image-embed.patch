@@ -1,0 +1,31 @@
+diff --git a/make/Images.gmk b/make/Images.gmk
+index 6c859fce7..c577c414b 100644
+--- a/make/Images.gmk
++++ b/make/Images.gmk
+@@ -245,6 +245,26 @@ ifneq ($(filter jdk, $(MAKECMDGOALS)), )
+   JDK_TARGETS += $(JDK_COPY_DEMOS)
+ endif
+ 
++################################################################################
++# AprismateAgent (AprismJDK-specific)
++#
++# If a prebuilt aprismate.jar has been staged at $(TOPDIR)/lib by the
++# overlay/embed step, copy it into the JDK image so it can be attached
++# without any external download:
++#   java -javaagent:$JAVA_HOME/lib/aprismate.jar
++# Stock-style builds (no staged jar) are unaffected.
++
++APRISMATE_AGENT_JAR := $(TOPDIR)/lib/aprismate.jar
++
++ifneq ($(wildcard $(APRISMATE_AGENT_JAR)), )
++  $(eval $(call SetupCopyFiles, COPY_APRISMATE_AGENT, \
++      SRC := $(TOPDIR)/lib, \
++      DEST := $(JDK_IMAGE_DIR)/lib, \
++      FILES := aprismate.jar, \
++  ))
++  JDK_TARGETS += $(COPY_APRISMATE_AGENT)
++endif
++
+ ################################################################################
+ # Code coverage data files
+ 

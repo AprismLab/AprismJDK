@@ -16,7 +16,7 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   echo "ERROR: openjdk-25 working tree has tracked modifications. Run scripts/revert-patches.sh first."
   exit 1
 fi
-UNTRACKED="$(git ls-files --others --exclude-standard | head -5)"
+UNTRACKED="$(git ls-files --others --exclude-standard | grep -v '^lib/aprismate\.jar$' | head -5 || true)"
 if [ -n "$UNTRACKED" ]; then
   echo "ERROR: openjdk-25 working tree has untracked files (patch overlay leftovers?):"
   echo "$UNTRACKED"

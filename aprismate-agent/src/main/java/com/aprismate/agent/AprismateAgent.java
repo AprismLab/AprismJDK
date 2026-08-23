@@ -33,24 +33,35 @@ public class AprismateAgent {
      * @param inst the instrumentation instance
      */
     public static void premain(String agentArgs, Instrumentation inst) {
+        try {
+            doPremain(agentArgs, inst);
+        } catch (Throwable t) {
+            initialized = false;
+            instrumentation = null;
+            System.err.println("[AprismateAgent] FAIL-SAFE: premain failed, agent disabled, JVM continues");
+            t.printStackTrace(System.err);
+        }
+    }
+
+    private static void doPremain(String agentArgs, Instrumentation inst) {
         if (initialized) {
             System.err.println("[AprismateAgent] WARNING: Agent already initialized, ignoring premain");
             return;
         }
-        
+
         instrumentation = inst;
         initialized = true;
-        
+
         // Initialize metrics system
         initializeMetrics();
-        
+
         // Initialize method hook registry
         initializeMethodHookRegistry();
-        
-        System.out.println("[AprismateAgent] v26.1-Alpha.4 attached via premain");
+
+        System.out.println("[AprismateAgent] attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
-        
+
         // Parse agent arguments if present
         if (agentArgs != null && !agentArgs.isEmpty()) {
             parseArguments(agentArgs);
@@ -64,24 +75,35 @@ public class AprismateAgent {
      * @param inst the instrumentation instance
      */
     public static void agentmain(String agentArgs, Instrumentation inst) {
+        try {
+            doAgentmain(agentArgs, inst);
+        } catch (Throwable t) {
+            initialized = false;
+            instrumentation = null;
+            System.err.println("[AprismateAgent] FAIL-SAFE: agentmain failed, agent disabled, target continues");
+            t.printStackTrace(System.err);
+        }
+    }
+
+    private static void doAgentmain(String agentArgs, Instrumentation inst) {
         if (initialized) {
             System.err.println("[AprismateAgent] WARNING: Agent already initialized, ignoring agentmain");
             return;
         }
-        
+
         instrumentation = inst;
         initialized = true;
-        
+
         // Initialize metrics system
         initializeMetrics();
-        
+
         // Initialize method hook registry
         initializeMethodHookRegistry();
-        
-        System.out.println("[AprismateAgent] v26.1-Alpha.4 attached via agentmain (hot-attach)");
+
+        System.out.println("[AprismateAgent] attached via agentmain (hot-attach)");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
-        
+
         if (agentArgs != null && !agentArgs.isEmpty()) {
             parseArguments(agentArgs);
         }
