@@ -40,14 +40,18 @@ patches + overlay are version-controlled.
 |---|------|------|--------|
 | 001 | aprismjdk-branding (identity in java -version) | v26.2-Alpha.4 | done |
 | 002 | aprismjdk-version-property (VmInfo capability wiring) | v26.2-Alpha.5 | done |
-| 003+ | reserved for agent embed / auto-load flag work | v26.2-Alpha.6-7 | planned |
+| 003 | agent-image-embed (lib/aprismate.jar via Images.gmk) | v26.2-Alpha.6 | done |
+| 004 | aprismagent-autoload (-XX:+AprismateAgent at launcher tier) | v26.2-Alpha.7 | done |
+| 005+ | reserved | — | — |
 
-Historical note: original plan had 002/003 as "add module sources" +
-"register/export module". Empirically the build auto-discovers modules
-via src/*/share/classes/module-info.java, so module addition is carried
-entirely by jdk/overlay/ (see scripts/sync-overlay.sh); no make-file
-patch was needed. The freed numbering was reassigned to the capability-
-property wiring.
+Historical notes:
+- Original 002/003 "add module sources / register module" collapsed into
+  the overlay: the build auto-discovers src/*/share/classes/
+  module-info.java, no make registration patch needed.
+- Original 006 "-XX:+AprismateAgent VM flag" was implemented at the
+  LAUNCHER tier (java.c arg translation -> -javaagent) instead of
+  HotSpot globals plumbing: same observable behavior, far smaller diff,
+  and fail-safe jar-existence check before injecting.
 
 ## Overlay directory
 

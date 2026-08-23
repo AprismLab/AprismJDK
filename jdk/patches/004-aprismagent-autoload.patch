@@ -1,0 +1,41 @@
+diff --git a/src/java.base/share/native/libjli/java.c b/src/java.base/share/native/libjli/java.c
+index a36b91e29..d5742e725 100644
+--- a/src/java.base/share/native/libjli/java.c
++++ b/src/java.base/share/native/libjli/java.c
+@@ -51,6 +51,7 @@
+ #include "java.h"
+ #include "jni.h"
+ #include "stdbool.h"
++#include <sys/stat.h>
+ 
+ /*
+  * A NOTE TO DEVELOPERS: For performance reasons it is important that
+@@ -1200,6 +1201,28 @@ ParseArguments(int *pargc, char ***pargv,
+                 JLI_Snprintf(propValue, size, "%s%s", prop, value);
+                 AddOption(propValue, NULL);
+             }
++        } else if (JLI_StrCmp(arg, "-XX:+AprismateAgent") == 0) {
++            /*
++             * AprismJDK: auto-load the bundled AprismateAgent, equivalent
++             * to -javaagent:<home>/lib/aprismate.jar. Fail-safe: if the
++             * jar is missing the flag is ignored with a warning instead
++             * of aborting the JVM.
++             */
++            char agent_home[MAXPATHLEN];
++            char agent_jar[MAXPATHLEN];
++            struct stat st;
++            if (GetApplicationHome(agent_home, sizeof(agent_home)) &&
++                JLI_Snprintf(agent_jar, sizeof(agent_jar),
++                             "%s/lib/aprismate.jar", agent_home) > 0 &&
++                stat(agent_jar, &st) == 0) {
++                size_t opt_len = JLI_StrLen(agent_jar) + JLI_StrLen("-javaagent:") + 1;
++                char *agent_opt = (char *)JLI_MemAlloc(opt_len);
++                JLI_Snprintf(agent_opt, opt_len, "-javaagent:%s", agent_jar);
++                AddOption(agent_opt, NULL);
++            } else {
++                JLI_ReportMessage("[AprismateAgent] WARNING: lib/aprismate.jar "
++                                  "not found; -XX:+AprismateAgent ignored");
++            }
+         } else if (JLI_StrCmp(arg, "--class-path") == 0 ||
+                    JLI_StrCCmp(arg, "--class-path=") == 0 ||
+                    JLI_StrCmp(arg, "-classpath") == 0 ||
