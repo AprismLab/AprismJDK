@@ -234,3 +234,25 @@ Java 17 缺少 Java 21+ 中可用的某些语言特性：
 - [标准 JDK 回退测试](../../aprismate-tests/src/test/java/jdk/aprismate/test/compatibility/StockJdkFallbackTest.java)
 - [跨版本测试](../../aprismate-tests/src/test/java/jdk/aprismate/test/compatibility/CrossVersionCompatibilityTest.java)
 - [语义化版本规范](https://semver.org/)
+
+## v26.2-Alpha.8 实测矩阵（2026-08-23）
+
+基线修正：API 面仅面向 Java 25 编译（FFM 自 22 转正；Alpha.1 起移除
+`--enable-preview`）。上表 Java 21/17 行在 MRJAR 线落地前为规划值，
+已排期至 v26.3+。
+
+本 alpha 经 `scripts/compat-sweep.ps1` 实测（8 项检查）：
+
+| 运行时 | 身份 | jdk.aprismate | Agent 挂载 | Gradle 套件 |
+|---|---|---|---|---|
+| Temurin 25.0.3（stock） | openjdk 25.0.3 | 缺席（正确） | 完整挂载（自包含 jar） | PASS（678 测试） |
+| AprismJDK fork 镜像 | aprismjdk 26.2.1-alpha AJR | 存在、已导出、isAJR=true | 完整挂载 + `-XX:+AprismateAgent` | **SKIP — KI-1** |
+
+**KI-1（已知问题）**：fork 对外宣称 feature 版本 26（日历版本命名），
+内核为 25；按 `Runtime.version().feature()` 选择类文件目标的工具可能
+产出高于运行时接受版本（70 > 69）的类文件。复现：fork daemon 下的用户
+全局 Gradle Kotlin init 脚本。解决路线已在 v26.2-GA 规划中记录
+（对齐 version-string 基线或文档化）。
+
+Agent 可移植性说明：自 Alpha.8 起，内嵌 jar 打包了 aprismate-api 类；
+将其挂载到 STOCK JDK 可获得完整 premain 功能（而非仅仅优雅降级）。

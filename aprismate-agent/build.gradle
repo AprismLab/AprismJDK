@@ -14,18 +14,37 @@ dependencies {
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
 }
 
+ext.agentManifest = [
+    'Premain-Class': 'com.aprismate.agent.AprismateAgent',
+    'Agent-Class': 'com.aprismate.agent.AprismateAgent',
+    'Can-Redefine-Classes': 'true',
+    'Can-Retransform-Classes': 'true',
+    'Can-Set-Native-Method-Prefix': 'true',
+    'Implementation-Title': 'AprismateAgent',
+    'Implementation-Version': project.version,
+    'Implementation-Vendor': 'AprismLab'
+]
+
 jar {
-    manifest {
-        attributes(
-            'Premain-Class': 'com.aprismate.agent.AprismateAgent',
-            'Agent-Class': 'com.aprismate.agent.AprismateAgent',
-            'Can-Redefine-Classes': 'true',
-            'Can-Retransform-Classes': 'true',
-            'Can-Set-Native-Method-Prefix': 'true',
-            'Implementation-Title': 'AprismateAgent',
-            'Implementation-Version': project.version,
-            'Implementation-Vendor': 'AprismLab'
-        )
+    manifest { attributes(agentManifest) }
+}
+
+// Self-contained agent jar for image embedding and stock-JDK attach.
+// Bundles aprismate-api classes so premain class-linking succeeds even
+// when the jdk.aprismate module is absent (stock fallback tier).
+// ASM is declared but unused at runtime; excluded to keep the jar lean.
+tasks.register('embedJar', Jar) {
+    archiveFileName = 'aprismate.jar'
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest { attributes(agentManifest) }
+    from(sourceSets.main.output)
+    def apiProject = project(':aprismate-api')
+    dependsOn apiProject.tasks.named('jar')
+    from({
+        zipTree(apiProject.tasks.named('jar').flatMap { it.archiveFile })
+    }) {
+        exclude 'module-info.class'
     }
 }
 

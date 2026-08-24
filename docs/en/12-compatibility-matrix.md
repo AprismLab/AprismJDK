@@ -234,3 +234,28 @@ Java 17 lacks some language features available in Java 21+:
 - [Stock JDK Fallback Tests](../../aprismate-tests/src/test/java/jdk/aprismate/test/compatibility/StockJdkFallbackTest.java)
 - [Cross-Version Tests](../../aprismate-tests/src/test/java/jdk/aprismate/test/compatibility/CrossVersionCompatibilityTest.java)
 - [Semantic Versioning Specification](https://semver.org/)
+
+## v26.2-Alpha.8 Measured Matrix (2026-08-23)
+
+Baseline correction: the API surface compiles against Java 25 only
+(FFM final since 22; `--enable-preview` removed in Alpha.1). The
+Java 21/17 rows above are aspirational until the MRJAR line lands —
+tracked for v26.3+.
+
+Measured this alpha via `scripts/compat-sweep.ps1` (8 checks):
+
+| Runtime | Identity | jdk.aprismate | Agent attach | Gradle suite |
+|---|---|---|---|---|
+| Temurin 25.0.3 (stock) | openjdk 25.0.3 | absent (correct) | FULL attach (self-contained jar) | PASS (678 tests) |
+| AprismJDK fork image | aprismjdk 26.2.1-alpha AJR | present, exported, isAJR=true | full attach + `-XX:+AprismateAgent` | **SKIP — KI-1** |
+
+**KI-1 (known issue)**: the fork advertises feature version 26
+(calendar release naming) on a 25 codebase; tools that pick classfile
+targets from `Runtime.version().feature()` may emit class files
+(70) newer than the runtime accepts (69). Repro: user-global Gradle
+Kotlin init scripts under a fork daemon. Resolution options tracked
+for v26.2-GA planning (align version-string base vs document).
+
+Agent portability note: since Alpha.8 the embedded jar bundles
+aprismate-api classes; attaching it to a STOCK JDK gives full premain
+functionality (not just graceful degradation).

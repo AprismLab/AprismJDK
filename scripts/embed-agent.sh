@@ -7,9 +7,12 @@ PROJ="$(cd "$(dirname "$0")/.." && pwd)"
 LIBS="$PROJ/aprismate-agent/build/libs"
 DEST="$PROJ/openjdk-25/lib"
 
-JAR=$(ls -t "$LIBS"/aprismate-agent-v*.jar 2>/dev/null \
-      | grep -v -e sources -e javadoc | head -1)
-[ -n "$JAR" ] || { echo "ERROR: no agent jar under $LIBS"; exit 1; }
+JAR="$LIBS/aprismate.jar"
+if [ ! -f "$JAR" ]; then
+  JAR=$(ls -t "$LIBS"/aprismate-agent-v*.jar 2>/dev/null \
+        | grep -v -e sources -e javadoc | head -1)
+fi
+[ -n "$JAR" ] && [ -f "$JAR" ] || { echo "ERROR: no agent jar under $LIBS"; exit 1; }
 
 mkdir -p "$DEST"
 cp -f "$JAR" "$DEST/aprismate.jar"
