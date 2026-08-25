@@ -63,9 +63,7 @@ jobs:
             --with-vendor-url=https://github.com/AprismLab/AprismJDK \
             --with-vendor-bug-url=https://github.com/AprismLab/AprismJDK/issues \
             --with-vendor-vm-bug-url=https://github.com/AprismLab/AprismJDK/issues \
-            --with-version-string=26.2.1 \
-            --with-version-pre=alpha \
-            --with-version-build=1
+            --with-version-string=25.2.1
           for i in 1 2 3; do
             make images JOBS=$(nproc) LOG=info && break
             echo "retry $i failed; incremental retry"

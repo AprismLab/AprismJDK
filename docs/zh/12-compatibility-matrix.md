@@ -256,3 +256,19 @@ Java 17 缺少 Java 21+ 中可用的某些语言特性：
 
 Agent 可移植性说明：自 Alpha.8 起，内嵌 jar 打包了 aprismate-api 类；
 将其挂载到 STOCK JDK 可获得完整 premain 功能（而非仅仅优雅降级）。
+
+## v26.2 GA 实测矩阵（最终，2026-08-23）
+
+KI-1 已解决：版本字符串对齐真实 25 基线（`25.2.1`，无 pre 后缀）。
+`Runtime.version().feature()` 现报告 25；工具的类文件目标选择随之一致。
+日历线名（v26.2）保留为项目发布身份（tag、溯源、文档），运行时身份则如实呈现。
+
+| 运行时 | 身份 | jdk.aprismate | Agent | Gradle 套件 |
+|---|---|---|---|---|
+| Temurin 25.0.3 stock | openjdk 25.0.3 | 缺席 | 完整挂载（自包含 jar） | PASS 678 测试 |
+| AprismJDK fork 镜像 | aprismjdk 25.2.1 AJR | 存在，isAJR=true | 完整 + `-XX:+AprismateAgent` | SKIP — KI-2 |
+
+**KI-2（接受的限制）**：在 fork 下编译 aprismate-api 源码会与镜像内
+jdk.aprismate 模块产生同包冲突（自举分包）。属设计使然；权威测试套件
+运行于 stock JDK，fork 内行为由镜像级冒烟覆盖。针对镜像模块的原生测试
+装置已排期 v26.3。

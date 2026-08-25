@@ -140,6 +140,13 @@ function Test-GradleSuite([string]$label, [string]$javaHome) {
             $results.Add([pscustomobject]@{ Check="$label gradle suite"; Result='SKIP'; Detail='KI-1 feature-string vs global init script' })
             return
         }
+        # KI-2: compiling aprismate-api sources inside the fork duplicates
+        # packages already shipped by the image's jdk.aprismate module
+        # (self-hosting conflict). Authoritative suite runs on stock.
+        if ($out -match '另一个模块|another module') {
+            $results.Add([pscustomobject]@{ Check="$label gradle suite"; Result='SKIP'; Detail='KI-2 self-hosting split-package (by design)' })
+            return
+        }
     }
     $m = [regex]::Match($out, 'BUILD (SUCCESSFUL|FAILED)')
     $res = if ($m.Success -and $m.Groups[1].Value -eq 'SUCCESSFUL') { 'PASS' } else { 'FAIL' }

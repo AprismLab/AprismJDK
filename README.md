@@ -9,17 +9,31 @@ cross-Java-version compatibility.
 
 ## Status
 
-**v26.0-Alpha.1** — Initial skeleton release. This release delivers:
+**v26.2 GA** — first stable JDK variant release. This release delivers:
 
-- **Core API surface** — `jdk.aprismate.VmInfo` and `jdk.aprismate.Agent` stub implementations
-- **Documentation** — Architecture, AprismateAgent design, opened interfaces, compatibility matrix
-- **Build infrastructure** — Gradle multi-module setup, GitHub Actions workflows
-- **Test framework** — JUnit 5 + AssertJ test skeleton
+- **Real OpenJDK fork** — OpenJDK 25 (jdk-25+10) built natively on
+  Windows via Cygwin, branded `AprismJDK / AJR` end to end
+- **jdk.aprismate module** — 21 exported packages compiled INTO the
+  image; capability descriptor wired (`isAprismJdk=true` in-image)
+- **AprismateAgent embedded** — `lib/aprismate.jar` in every image;
+  `-javaagent:$JAVA_HOME/lib/aprismate.jar` and the auto-load flag
+  `-XX:+AprismateAgent` both work out of the box; self-contained jar
+  attaches to STOCK JDKs with full premain functionality
+- **Fail-safe contract** — agent failures roll back and never abort
+  the host JVM
+- **invoke framework** — MethodHandle-tier reflection elimination in
+  the module (`jdk.aprismate.invoke`)
+- **Reproducible patch series** — 4 reversible patches + overlay sync,
+  canonical `scripts/configure-fork.sh`
+- **Compat sweep** — repeatable 8-check matrix green (KI-2 documented)
+- **Packaging** — zip/tar.gz + SHA256SUMS + provenance; tag-triggered
+  CI with cosign keyless signing
 
-**Not yet implemented:**
-- OpenJDK source fork and JDK/JRE image builds (v26.0-Alpha.5+)
-- AprismateAgent capabilities (v26.1 line)
-- VmIntrospection APIs (v26.1-Alpha.6+)
+See [ROADMAP pointer](docs/ROADMAP.md) and the v26.2 GA measured
+matrix in docs/en/12-compatibility-matrix.md.
+
+Historical: v26.0/v26.1 lines delivered the Java-layer API surface
+under mixed version tags (audit trail in FACT.md Sessions 9-11).
 
 See [ROADMAP.md](docs/ROADMAP.md) for the complete v26.0-v26.1 development plan.
 

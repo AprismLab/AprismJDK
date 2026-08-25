@@ -259,3 +259,23 @@ for v26.2-GA planning (align version-string base vs document).
 Agent portability note: since Alpha.8 the embedded jar bundles
 aprismate-api classes; attaching it to a STOCK JDK gives full premain
 functionality (not just graceful degradation).
+
+## v26.2 GA Measured Matrix (final, 2026-08-23)
+
+KI-1 RESOLVED: version-string aligned to the real 25 base
+(`25.2.1`, no pre-suffix). `Runtime.version().feature()` now reports 25;
+classfile-target selection by tools is consistent. The calendar line
+name (v26.2) remains the PROJECT release identity (tags, provenance,
+docs) while runtime identity is truthful.
+
+| Runtime | Identity | jdk.aprismate | Agent | Gradle suite |
+|---|---|---|---|---|
+| Temurin 25.0.3 stock | openjdk 25.0.3 | absent | FULL attach (self-contained jar) | PASS 678 tests |
+| AprismJDK fork image | aprismjdk 25.2.1 AJR | present, isAJR=true | full + `-XX:+AprismateAgent` | SKIP — KI-2 |
+
+**KI-2 (accepted limitation)**: compiling aprismate-api sources under
+the fork duplicates packages already provided by the image's
+jdk.aprismate module (self-hosting split-package). By design; the
+authoritative test suite runs on stock JDK, and in-fork behavior is
+covered by image-level smoke checks. Proper in-fork test harness
+(tests against the image's module) queued for v26.3.

@@ -25,7 +25,5 @@ exec bash configure \
   --with-vendor-url=https://github.com/AprismLab/AprismJDK \
   --with-vendor-bug-url=https://github.com/AprismLab/AprismJDK/issues \
   --with-vendor-vm-bug-url=https://github.com/AprismLab/AprismJDK/issues \
-  --with-version-string=26.2.1 \
-  --with-version-pre=alpha \
-  --with-version-build=1 \
+  --with-version-string=25.2.1 \
   "$@"
