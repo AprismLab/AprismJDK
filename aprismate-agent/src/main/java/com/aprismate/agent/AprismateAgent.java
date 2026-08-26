@@ -52,6 +52,11 @@ public class AprismateAgent {
         instrumentation = inst;
         initialized = true;
 
+        // Initialize experiment framework (fail-safe: no-op if unavailable)
+        try {
+            aprism.agent.experiment.SafeExperiment.init(inst);
+        } catch (Throwable ignored) { }
+
         // Initialize metrics system
         initializeMetrics();
 
@@ -95,6 +100,11 @@ public class AprismateAgent {
 
         instrumentation = inst;
         initialized = true;
+
+        // Initialize experiment framework (fail-safe: no-op if unavailable)
+        try {
+            aprism.agent.experiment.SafeExperiment.init(inst);
+        } catch (Throwable ignored) { }
 
         // Initialize metrics system
         initializeMetrics();
