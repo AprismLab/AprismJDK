@@ -76,6 +76,8 @@ public class AprismateAgent {
 
         installPreOptimizer();
 
+        logGcProfileAdvice();
+
         System.out.println("[AprismateAgent] attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
@@ -167,6 +169,26 @@ public class AprismateAgent {
         // Argument parsing will be implemented in later alphas
     }
     
+    /**
+     * Logs GC profile advice if -Daprismate.gc.profile is set.
+     */
+    private static void logGcProfileAdvice() {
+        String profile = System.getProperty("aprismate.gc.profile");
+        if (profile == null || profile.isBlank()) {
+            return;
+        }
+        try {
+            var preset = jdk.aprismate.tuning.GcPresets.forName(profile);
+            if (preset.isPresent()) {
+                System.out.println("[AprismateAgent] GC profile '" + profile
+                        + "': " + preset.get().asLaunchArgs());
+            } else {
+                System.out.println("[AprismateAgent] unknown GC profile '" + profile
+                        + "'. Available:\n" + jdk.aprismate.tuning.GcPresets.describeAll());
+            }
+        } catch (Throwable ignored) { }
+    }
+
     /**
      * Installs the pre-optimization transformer when explicitly enabled
      * via -Daprismate.optimizer.rules=<file>. Fail-safe: any setup error
