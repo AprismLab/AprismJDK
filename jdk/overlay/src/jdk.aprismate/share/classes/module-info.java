@@ -27,6 +27,7 @@
 module jdk.aprismate {
 
     requires transitive java.instrument;
+    requires java.management;
 
     exports jdk.aprismate;
     exports jdk.aprismate.agent;
