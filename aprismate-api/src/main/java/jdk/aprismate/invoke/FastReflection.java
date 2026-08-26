@@ -15,25 +15,36 @@ import java.lang.reflect.Method;
  */
 public final class FastReflection {
 
+    private static final java.util.concurrent.ConcurrentHashMap<MemberKey, Object> CACHE =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
     private FastReflection() {
     }
 
+    private record MemberKey(Class<?> declaring, String name, int kind) { }
+
     public static DirectInvoker invoker(Method method) {
         validate(method != null, "method");
-        try {
-            return MethodHandleAccess.invoker(method);
-        } catch (ReflectiveOperationException | SecurityException | InaccessibleObjectException e) {
-            return new PlainReflectiveInvoker(method);
-        }
+        var key = new MemberKey(method.getDeclaringClass(), method.getName(), 0);
+        return (DirectInvoker) CACHE.computeIfAbsent(key, k -> {
+            try {
+                return MethodHandleAccess.invoker(method);
+            } catch (ReflectiveOperationException | SecurityException | InaccessibleObjectException e) {
+                return new PlainReflectiveInvoker(method);
+            }
+        });
     }
 
     public static DirectFieldAccessor fieldAccessor(java.lang.reflect.Field field) {
         validate(field != null, "field");
-        try {
-            return MethodHandleAccess.fieldAccessor(field);
-        } catch (ReflectiveOperationException | SecurityException | InaccessibleObjectException e) {
-            return new PlainReflectiveFieldAccessor(field);
-        }
+        var key = new MemberKey(field.getDeclaringClass(), field.getName(), 1);
+        return (DirectFieldAccessor) CACHE.computeIfAbsent(key, k -> {
+            try {
+                return MethodHandleAccess.fieldAccessor(field);
+            } catch (ReflectiveOperationException | SecurityException | InaccessibleObjectException e) {
+                return new PlainReflectiveFieldAccessor(field);
+            }
+        });
     }
 
     /**
