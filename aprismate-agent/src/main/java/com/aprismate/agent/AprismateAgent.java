@@ -57,6 +57,17 @@ public class AprismateAgent {
             aprism.agent.experiment.SafeExperiment.init(inst);
         } catch (Throwable ignored) { }
 
+        // Install startup profiler if enabled
+        String startupProfile = System.getProperty("aprismate.startup.profile");
+        if (startupProfile != null) {
+            try {
+                aprism.agent.startup.StartupProfiler.install(inst);
+                System.out.println("[AprismateAgent] startup profiler installed");
+            } catch (Throwable t) {
+                System.err.println("[AprismateAgent] FAIL-SAFE: startup profiler failed, continuing");
+            }
+        }
+
         // Initialize metrics system
         initializeMetrics();
 
