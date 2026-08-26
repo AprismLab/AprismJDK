@@ -46,6 +46,15 @@ tasks.register('embedJar', Jar) {
     }) {
         exclude 'module-info.class'
     }
+    // bundle ASM: the optimizer needs it at runtime on any host JDK
+    configurations.runtimeClasspath
+        .filter { it.name.startsWith('asm') }
+        .each { dep ->
+            from({ zipTree(dep) }) {
+                exclude 'module-info.class'
+                exclude 'META-INF/*'
+            }
+        }
 }
 
 shadowJar {

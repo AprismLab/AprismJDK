@@ -58,6 +58,8 @@ public class AprismateAgent {
         // Initialize method hook registry
         initializeMethodHookRegistry();
 
+        installPreOptimizer();
+
         System.out.println("[AprismateAgent] attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
@@ -99,6 +101,8 @@ public class AprismateAgent {
 
         // Initialize method hook registry
         initializeMethodHookRegistry();
+
+        installPreOptimizer();
 
         System.out.println("[AprismateAgent] attached via agentmain (hot-attach)");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
@@ -142,6 +146,33 @@ public class AprismateAgent {
         // Argument parsing will be implemented in later alphas
     }
     
+    /**
+     * Installs the pre-optimization transformer when explicitly enabled
+     * via -Daprismate.optimizer.rules=<file>. Fail-safe: any setup error
+     * logs and skips installation.
+     */
+    private static void installPreOptimizer() {
+        String rules = System.getProperty("aprismate.optimizer.rules");
+        if (rules == null || rules.isBlank()) {
+            return;
+        }
+        try {
+            var cfg = aprism.agent.optimize.OptimizerConfig.parse(java.nio.file.Path.of(rules));
+            if (cfg.isEmpty()) {
+                System.out.println("[AprismateAgent] optimizer: empty rules, skipped");
+                return;
+            }
+            var transformer = new aprism.agent.optimize.PreOptimizationTransformer(cfg);
+            instrumentation.addTransformer(transformer);
+            System.out.println("[AprismateAgent] optimizer installed ("
+                    + cfg.elisions().size() + " elisions, "
+                    + cfg.probes().size() + " probes)");
+        } catch (Throwable t) {
+            System.err.println("[AprismateAgent] FAIL-SAFE: optimizer setup failed, continuing without it");
+            t.printStackTrace(System.err);
+        }
+    }
+
     /**
      * Initializes the metrics system with a default registry.
      */
