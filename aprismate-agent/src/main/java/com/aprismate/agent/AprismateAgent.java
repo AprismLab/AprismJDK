@@ -55,6 +55,7 @@ public class AprismateAgent {
         // Initialize experiment framework (fail-safe: no-op if unavailable)
         try {
             aprism.agent.experiment.SafeExperiment.init(inst);
+            aprism.agent.reload.HotReloader.init(inst);
         } catch (Throwable ignored) { }
 
         // Install startup profiler if enabled
