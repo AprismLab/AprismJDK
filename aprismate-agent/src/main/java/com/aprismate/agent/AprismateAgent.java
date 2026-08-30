@@ -79,6 +79,9 @@ public class AprismateAgent {
 
         logGcProfileAdvice();
 
+        // Start diagnostic HTTP server if enabled
+        aprism.agent.diag.DiagnosticServer.tryStart();
+
         System.out.println("[AprismateAgent] attached via premain");
         System.out.println("[AprismateAgent] Can redefine classes: " + inst.isRedefineClassesSupported());
         System.out.println("[AprismateAgent] Can retransform classes: " + inst.isRetransformClassesSupported());
