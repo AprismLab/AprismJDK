@@ -1,6 +1,6 @@
-# AprismJDK
+﻿# AprismJDK
 
-**AJR — Aprism Java Runtime** is an open-source, cross-platform OpenJDK
+**AJR 鈥?Aprism Java Runtime** is an open-source, cross-platform OpenJDK
 variant designed bottom-up around the Aprism loader ecosystem: a bundled
 **AprismateAgent** (JavaAgent-like, low-level), opened and stable JVM
 interfaces, performance/hardware-fusion APIs, cross-language bridges
@@ -9,24 +9,24 @@ cross-Java-version compatibility.
 
 ## Status
 
-**v26.2 GA** — first stable JDK variant release. This release delivers:
+**v26.2 GA** 鈥?first stable JDK variant release. This release delivers:
 
-- **Real OpenJDK fork** — OpenJDK 25 (jdk-25+10) built natively on
+- **Real OpenJDK fork** 鈥?OpenJDK 25 (jdk-25+10) built natively on
   Windows via Cygwin, branded `AprismJDK / AJR` end to end
-- **jdk.aprismate module** — 21 exported packages compiled INTO the
+- **jdk.aprismate module** 鈥?21 exported packages compiled INTO the
   image; capability descriptor wired (`isAprismJdk=true` in-image)
-- **AprismateAgent embedded** — `lib/aprismate.jar` in every image;
+- **AprismateAgent embedded** 鈥?`lib/aprismate.jar` in every image;
   `-javaagent:$JAVA_HOME/lib/aprismate.jar` and the auto-load flag
   `-XX:+AprismateAgent` both work out of the box; self-contained jar
   attaches to STOCK JDKs with full premain functionality
-- **Fail-safe contract** — agent failures roll back and never abort
+- **Fail-safe contract** 鈥?agent failures roll back and never abort
   the host JVM
-- **invoke framework** — MethodHandle-tier reflection elimination in
+- **invoke framework** 鈥?MethodHandle-tier reflection elimination in
   the module (`jdk.aprismate.invoke`)
-- **Reproducible patch series** — 4 reversible patches + overlay sync,
+- **Reproducible patch series** 鈥?4 reversible patches + overlay sync,
   canonical `scripts/configure-fork.sh`
-- **Compat sweep** — repeatable 8-check matrix green (KI-2 documented)
-- **Packaging** — zip/tar.gz + SHA256SUMS + provenance; tag-triggered
+- **Compat sweep** 鈥?repeatable 8-check matrix green (KI-2 documented)
+- **Packaging** 鈥?zip/tar.gz + SHA256SUMS + provenance; tag-triggered
   CI with cosign keyless signing
 
 See [ROADMAP pointer](docs/ROADMAP.md) and the v26.2 GA measured
@@ -41,15 +41,15 @@ See [ROADMAP.md](docs/ROADMAP.md) for the complete v26.0-v26.1 development plan.
 
 All documentation follows bilingual approach (EN canonical + ZH mirror):
 
-- [`docs/01-architecture.md`](docs/01-architecture.md) — Positioning, architecture, relationship to Aprism, roadmap
-- [`docs/02-aprismate-agent.md`](docs/02-aprismate-agent.md) — AprismateAgent entry points, capabilities, fail-safe contract
-- [`docs/03-opened-interfaces.md`](docs/03-opened-interfaces.md) — The `jdk.aprismate` stable API module
-- [`docs/06-compatibility-matrix.md`](docs/06-compatibility-matrix.md) — Cross-Java-version compatibility and fallback behavior
-- [`docs/ROADMAP.md`](docs/ROADMAP.md) — Complete v26.0-v26.1 development roadmap (20 releases)
+- [`docs/01-architecture.md`](docs/01-architecture.md) 鈥?Positioning, architecture, relationship to Aprism, roadmap
+- [`docs/02-aprismate-agent.md`](docs/02-aprismate-agent.md) 鈥?AprismateAgent entry points, capabilities, fail-safe contract
+- [`docs/03-opened-interfaces.md`](docs/03-opened-interfaces.md) 鈥?The `jdk.aprismate` stable API module
+- [`docs/06-compatibility-matrix.md`](docs/06-compatibility-matrix.md) 鈥?Cross-Java-version compatibility and fallback behavior
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) 鈥?Complete v26.0-v26.1 development roadmap (20 releases)
 
 **Planned for v26.0-Alpha.3+:**
-- `docs/04-perf-hardware.md` — Performance & hardware-fusion APIs
-- `docs/05-cross-language.md` — Cpp2Java / Rust2Java bridge design
+- `docs/04-perf-hardware.md` 鈥?Performance & hardware-fusion APIs
+- `docs/05-cross-language.md` 鈥?Cpp2Java / Rust2Java bridge design
 
 ## Quick Start
 
@@ -71,13 +71,13 @@ cd AprismJDK
 
 ```
 AprismJDK/
-├── aprismate-api/          # jdk.aprismate module (VmInfo, Agent API)
-├── aprismate-agent/        # AprismateAgent implementation (skeleton)
-├── aprismate-tests/        # Integration tests
-├── docs/                   # Documentation (EN + ZH)
-│   ├── en/                 # English documentation
-│   └── zh/                 # Chinese documentation (mirrors)
-└── .github/workflows/      # CI/CD automation
+鈹溾攢鈹€ aprismate-api/          # jdk.aprismate module (VmInfo, Agent API)
+鈹溾攢鈹€ aprismate-agent/        # AprismateAgent implementation (skeleton)
+鈹溾攢鈹€ aprismate-tests/        # Integration tests
+鈹溾攢鈹€ docs/                   # Documentation (EN + ZH)
+鈹?  鈹溾攢鈹€ en/                 # English documentation
+鈹?  鈹斺攢鈹€ zh/                 # Chinese documentation (mirrors)
+鈹斺攢鈹€ .github/workflows/      # CI/CD automation
 ```
 
 ## Supported Java Versions
@@ -97,11 +97,11 @@ See [docs/06-compatibility-matrix.md](docs/06-compatibility-matrix.md) for detai
 AprismJDK follows the Aprism main-project management and version-control
 convention:
 
-- **Signed commits/tags** — All commits and tags must be signed (SSH ED25519)
-- **Version scheme** — `v<MAJOR>.<MINOR>[-Alpha.<N>]` (e.g., v26.0-Alpha.1, v26.0)
-- **Release cadence** — Each minor line has Alpha.1-9, then GA
-- **Bilingual docs** — EN (canonical) + ZH (mirror)
-- **Session log** — FACT.md tracks decisions and progress
+- **Signed commits/tags** 鈥?All commits and tags must be signed (SSH ED25519)
+- **Version scheme** 鈥?`v<MAJOR>.<MINOR>[-Alpha.<N>]` (e.g., v26.0-Alpha.1, v26.0)
+- **Release cadence** 鈥?Each minor line has Alpha.1-9, then GA
+- **Bilingual docs** 鈥?EN (canonical) + ZH (mirror)
+- **Session log** 鈥?FACT.md tracks decisions and progress
 
 See `Aprism/docs/en/10-project-management-and-version-control.md` for complete governance model.
 
@@ -134,17 +134,17 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for detailed milestone planning.
 AprismJDK is part of the Aprism ecosystem. Contributions follow the same
 process as the main Aprism project:
 
-1. **Fork and branch** — Create a feature branch from `main`
-2. **Sign commits** — All commits must be signed
-3. **Test coverage** — Include tests for new functionality
-4. **Documentation** — Update both EN and ZH docs
-5. **Pull request** — Submit PR against `main` branch
+1. **Fork and branch** 鈥?Create a feature branch from `main`
+2. **Sign commits** 鈥?All commits must be signed
+3. **Test coverage** 鈥?Include tests for new functionality
+4. **Documentation** 鈥?Update both EN and ZH docs
+5. **Pull request** 鈥?Submit PR against `main` branch
 
 ## Community
 
-- **Issues** — Report bugs and request features via GitHub Issues
-- **Discussions** — Technical discussions on GitHub Discussions
-- **Main project** — [AprismLab/Aprism](https://github.com/AprismLab/Aprism)
+- **Issues** 鈥?Report bugs and request features via GitHub Issues
+- **Discussions** 鈥?Technical discussions on GitHub Discussions
+- **Main project** 鈥?[AprismLab/Aprism](https://github.com/AprismLab/Aprism)
 
 ## License
 
