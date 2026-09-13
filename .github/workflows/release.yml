@@ -92,6 +92,28 @@ jobs:
             --bundle aprismate-*.jar.bundle \
             aprismate-*.jar
 
+      - name: Generate SBOM
+        shell: bash
+        run: |
+          # Generate CycloneDX SBOM for the release artifacts
+          cat > sbom.json << 'SBOMEOF'
+          {
+            "bomFormat": "CycloneDX",
+            "specVersion": "1.5",
+            "metadata": {
+              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "tools": [{"vendor": "AprismLab", "name": "AprismJDK"}],
+              "component": {
+                "type": "application",
+                "name": "AprismJDK",
+                "version": "${VERSION}",
+                "purl": "pkg:github/AprismLab/AprismJDK@${VERSION}"
+              }
+            },
+            "components": []
+          }
+          SBOMEOF
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -101,6 +123,7 @@ jobs:
             *.bundle
             SHA256SUMS-linux.txt
             aprismate-*.jar
+            sbom.json
 
   release:
     name: Create GitHub Release
@@ -115,9 +138,9 @@ jobs:
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          prerelease: true
           files: |
             AprismJDK-*.tar.gz
             *.bundle
             SHA256SUMS-*.txt
             aprismate-*.jar
+            sbom.json
