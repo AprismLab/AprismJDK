@@ -213,3 +213,23 @@ String sbom = SbomGenerator.generate(artifacts, "v26.4");
 - `SafeExperiment` replaces ad-hoc retransformClasses calls
 - GC presets replace manual flag tuning
 - Agent jar is now self-contained (bundles api + ASM classes)
+
+## Container Deployment
+
+Build and run the fork image in Docker:
+
+```bash
+docker build -t aprismjdk:26.5 .
+docker run --rm aprismjdk:26.5 java -XX:+AprismateAgent -version
+docker run --rm aprismjdk:26.5 java --list-modules
+```
+
+The multi-stage Dockerfile builds the fork from source (30-90 min),
+then packages into a minimal ubuntu runtime at `/opt/aprismjdk`.
+For CI, prefer the prebuilt `tar.gz` from GitHub Releases.
+
+## Performance Report
+
+See [docs/15-performance-report.md](15-performance-report.md) for the
+comprehensive performance comparison (startup, throughput, memory,
+compact runtime, agent overhead).

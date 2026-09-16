@@ -184,3 +184,19 @@ String sbom = SbomGenerator.generate(artifacts, "v26.4");
 - `SafeExperiment` 替代临时 retransformClasses 调用
 - GC 预设替代手动 flag 调优
 - Agent jar 现为自包含（打包 api + ASM 类）
+
+## 容器部署
+
+用 Docker 构建和运行 fork 镜像：
+
+```bash
+docker build -t aprismjdk:26.5 .
+docker run --rm aprismjdk:26.5 java -XX:+AprismateAgent -version
+```
+
+多阶段 Dockerfile 从源码构建（30-90 分钟），打包为最小 ubuntu 运行时。
+CI 场景建议使用 GitHub Releases 的预构建 tar.gz。
+
+## 性能报告
+
+见 [docs/zh/15-performance-report.md](15-performance-report.md)。
